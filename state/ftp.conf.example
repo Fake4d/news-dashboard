@@ -1,0 +1,7 @@
+# Zugang zum Webspace. Kopie als state/ftp.conf anlegen und ausfüllen.
+# Diese Datei steht in .gitignore und darf nie ins Repo.
+FTP_HOST=ftp.example.com
+FTP_PORT=21
+FTP_USER=benutzername
+FTP_PASS=geheim
+FTP_ROOT=example.com

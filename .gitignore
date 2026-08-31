@@ -1,0 +1,13 @@
+# Zugangsdaten — NIEMALS committen. Vorlage: state/ftp.conf.example
+state/ftp.conf
+
+# Laufzeitdaten: das Gedächtnis der Themen, wächst bei jedem Cron-Lauf
+state/dashboard/*.json
+
+# Bauergebnis, wird aus Vorlage + State erzeugt
+dashboard/gebaut/
+
+# Logs und Sperrdateien
+logs/
+*.log
+*.lock

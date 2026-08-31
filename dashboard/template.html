@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>%%TITEL%% — claude.christian-grafe.de</title>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="claude.christian-grafe.de">
+<meta property="og:url" content="%%URL%%">
+<meta property="og:title" content="%%TITEL%% — claude.christian-grafe.de">
+<meta property="og:description" content="%%LEAD%%">
+<meta name="twitter:card" content="summary">
+<meta name="description" content="%%LEAD%%">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+<!-- Eigenes Icon fuers iOS-Homescreen ("Zum Home-Bildschirm"): Apple ignoriert
+     das SVG-Favicon oben und will eine echte PNG-Datei, die es selbst rund
+     maskiert - deshalb randlos gestaltet, kein eigenes Abrunden noetig. -->
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="%%TITEL%%">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#eef1f6">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0c11">
+<style>
+  :root{
+    color-scheme:light dark;
+    --bg:#eef1f6; --surface:#ffffff; --surface-2:#f7f8fb;
+    --text:#12151c; --muted:#5b6472; --border:#dde2ea;
+    --shadow:0 1px 2px rgba(20,25,40,.05), 0 10px 28px rgba(20,25,40,.07);
+    --mono:ui-monospace,"SF Mono","Cascadia Code",Menlo,Consolas,monospace;
+%%FARBEN_HELL%%
+    --c-leicht:#d98324;
+    --dot-grid: rgba(20,25,40,.06);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0a0c11; --surface:#12151d; --surface-2:#161a24;
+      --text:#e8eaf0; --muted:#8e97a8; --border:#232838;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 14px 34px rgba(0,0,0,.4);
+%%FARBEN_DUNKEL%%
+      --c-leicht:#f0b45c;
+      --dot-grid: rgba(255,255,255,.055);
+    }
+  }
+  *{box-sizing:border-box}
+  html{background:var(--bg); scroll-behavior:smooth;}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:
+      radial-gradient(var(--dot-grid) 1px, transparent 1px);
+    background-size:22px 22px;
+    background-color:var(--bg);
+    color:var(--text); line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1000px; margin:0 auto; padding:clamp(1.5rem,4vw,3.5rem) 1.25rem 4rem;}
+
+  header.topbar{
+    display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between;
+    gap:1rem; margin-bottom:1.6rem;
+  }
+  .eyebrow{
+    display:inline-block; font-size:.72rem; letter-spacing:.1em; text-transform:uppercase;
+    font-weight:700; color:var(--muted); margin:0 0 .5rem;
+  }
+  h1{font-size:clamp(1.7rem,4.5vw,2.35rem); line-height:1.15; margin:0 0 .5rem; letter-spacing:-.02em;}
+  .lead{font-size:.98rem; color:var(--muted); margin:0; max-width:52ch;}
+  .live{
+    display:inline-flex; align-items:center; gap:.5rem; font-size:.78rem; font-weight:600;
+    color:var(--muted); background:var(--surface); border:1px solid var(--border);
+    padding:.45rem .85rem; border-radius:999px; white-space:nowrap; font-family:var(--mono);
+  }
+  .live .neu{
+    color:var(--text); font-weight:700;
+    padding-left:.5rem; margin-left:.15rem;
+    border-left:1px solid var(--border);
+  }
+  .live .dot{
+    width:7px; height:7px; border-radius:50%; background:var(--c-live);
+    box-shadow:0 0 0 0 color-mix(in srgb, var(--c-live) 60%, transparent);
+    animation:pulse 2.4s ease-out infinite;
+  }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 color-mix(in srgb, var(--c-live) 45%, transparent);}
+    70%{box-shadow:0 0 0 7px transparent;}
+    100%{box-shadow:0 0 0 0 transparent;}
+  }
+
+  nav.jump{
+    display:flex; flex-wrap:wrap; gap:.55rem; margin:0 0 1.8rem; padding:0; list-style:none;
+  }
+  nav.jump a{
+    --c:var(--muted);
+    display:inline-flex; align-items:center; gap:.45rem; text-decoration:none;
+    font-size:.83rem; font-weight:600; color:var(--text);
+    background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:.4rem .8rem .4rem .65rem; transition:border-color .15s ease, transform .15s ease;
+  }
+  nav.jump a:hover{border-color:var(--c); transform:translateY(-1px);}
+  nav.jump a .dot{width:7px; height:7px; border-radius:50%; background:var(--c); flex:none;}
+
+  /* Die Sprungleiste ist zugleich die Uebersicht "was ist heute neu":
+     heute aktualisierte Themen kraeftig, Bestand tritt zurueck. */
+  nav.jump a.frisch{
+    border-color:color-mix(in srgb, var(--c) 50%, var(--border));
+    background:color-mix(in srgb, var(--c) 7%, var(--surface));
+  }
+  nav.jump a.matt{color:var(--muted); border-style:dashed;}
+  nav.jump a.matt .dot{opacity:.32;}
+  nav.jump a.matt:hover{color:var(--text);}
+
+  .grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(270px,1fr));
+    gap:1.1rem;
+  }
+  .card{
+    --accent:var(--muted);
+    position:relative; overflow:hidden;
+    background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    box-shadow:var(--shadow); display:flex; flex-direction:column;
+    scroll-margin-top:1.5rem;
+  }
+  .card::before{
+    content:""; position:absolute; top:0; left:0; right:0; height:3px;
+    background:var(--accent);
+  }
+  .card:target{
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent), var(--shadow);
+  }
+  .card-body{padding:1.3rem 1.35rem 1.1rem;}
+  .card-head{display:flex; align-items:center; gap:.75rem; margin-bottom:.9rem;}
+  .icon{
+    flex:none; width:2.3rem; height:2.3rem; border-radius:9px; font-size:1.15rem;
+    display:grid; place-items:center;
+    background:color-mix(in srgb, var(--accent) 16%, var(--surface));
+  }
+  .card-head .titles{min-width:0;}
+  .card-eyebrow{
+    font-size:.68rem; letter-spacing:.09em; text-transform:uppercase; font-weight:700;
+    color:var(--accent); margin:0 0 .15rem;
+  }
+  .card-title{font-size:1.05rem; font-weight:650; margin:0; letter-spacing:-.01em;}
+  .text{margin:0; color:var(--text); font-size:.94rem;}
+  .text + .text{margin-top:.85rem;}
+  .text.empty{color:var(--muted); font-style:italic;}
+
+  /* Breite Kachel: laeuft ueber alle Rasterspalten (Nachrichtenueberblick). */
+  .card.wide{grid-column:1 / -1;}
+
+  /* Meldungsliste: eine Zeile je Nachricht, leichte Meldungen abgesetzt. */
+  .news{list-style:none; margin:0; padding:0;}
+  .news li{
+    position:relative; padding-left:1.15rem; font-size:.94rem;
+    break-inside:avoid; -webkit-column-break-inside:avoid;
+  }
+  /* Trennlinie oben statt unten: so haengt am Ende einer Spalte kein Strich
+     ins Leere, wenn die Liste zweispaltig umbricht. */
+  .news li + li{margin-top:.55rem; padding-top:.55rem; border-top:1px solid var(--border);}
+  .news li::before{
+    content:""; position:absolute; left:0; top:.6em;
+    width:6px; height:6px; border-radius:2px; background:var(--accent);
+  }
+  .news li + li::before{top:calc(.55rem + .6em);}
+  .news li.leicht{color:var(--muted);}
+  .news li.leicht::before{background:var(--c-leicht); border-radius:50%;}
+  @media (min-width:720px){
+    .card.wide .news{column-count:2; column-gap:2.2rem;}
+  }
+
+  .card-foot{
+    margin-top:auto; display:flex; align-items:center; justify-content:space-between;
+    gap:.75rem; padding:.7rem 1.35rem; border-top:1px solid var(--border);
+    background:var(--surface-2); font-size:.74rem;
+  }
+  .stand{
+    font-family:var(--mono); color:var(--muted); display:flex; align-items:center; gap:.4rem;
+  }
+  .stand::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--accent); flex:none;}
+  .cadence{color:var(--muted); white-space:nowrap;}
+
+  footer{margin-top:2.6rem; padding-top:1.4rem; border-top:1px solid var(--border); color:var(--muted); font-size:.85rem;}
+  footer a{color:var(--text); text-decoration:none; font-weight:600;}
+
+  /* Aktualisieren-Knopf: nur in der Home-Screen-App sichtbar. Im normalen
+     Safari bleibt er weg - dort gibt es Ziehen-zum-Aktualisieren, in der
+     App als Vollbild-Fenster nicht. Die Klasse setzt das Skript unten. */
+  .refresh{display:none;}
+  body.app .refresh{
+    position:fixed; z-index:20;
+    right:calc(1rem + env(safe-area-inset-right));
+    bottom:calc(1rem + env(safe-area-inset-bottom));
+    width:3rem; height:3rem; padding:0; border-radius:50%;
+    display:grid; place-items:center;
+    background:var(--surface); color:var(--text);
+    border:1px solid var(--border); box-shadow:var(--shadow);
+    cursor:pointer; -webkit-tap-highlight-color:transparent;
+    transition:transform .12s ease;
+  }
+  body.app .refresh:active{transform:scale(.92);}
+  .refresh svg{width:1.35rem; height:1.35rem; display:block;}
+  .refresh.laedt{pointer-events:none;}
+  .refresh.laedt svg{animation:dreh .8s linear infinite;}
+  @keyframes dreh{to{transform:rotate(360deg);}}
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .live .dot{animation:none;}
+    nav.jump a{transition:none;}
+    body.app .refresh{transition:none;}
+    .refresh.laedt svg{animation:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <div>
+      <span class="eyebrow">%%TITEL%%</span>
+      <h1>%%H1%%</h1>
+      <p class="lead">%%LEAD%%</p>
+    </div>
+    <span class="live"><span class="dot"></span>aktualisiert sich automatisch%%LIVE_ZUSATZ%%</span>
+  </header>
+
+  <nav class="jump">
+%%NAV%%
+  </nav>
+
+  <div class="grid">
+%%KARTEN%%
+  </div>
+
+  <footer>
+    Erstellt mit Claude · <a href="https://claude.christian-grafe.de">claude.christian-grafe.de</a>
+  </footer>
+</div>
+
+<button class="refresh" type="button" aria-label="Seite aktualisieren" title="Aktualisieren">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12a9 9 0 1 1-2.64-6.36"/>
+    <path d="M21 3v6h-6"/>
+  </svg>
+</button>
+
+<script>
+(function(){
+  // "N heute neu" stimmt nur am Bautag. Die Seite steht aber bis zum naechsten
+  // Cron-Lauf, ab Mitternacht waere die Aussage falsch - dann auf den
+  // datumsfesten Text ausweichen ("N neu am 31. August"). Laeuft in jedem
+  // Kontext, nicht nur in der App.
+  var n = document.querySelector('.live .neu');
+  if(n && n.dataset.stand && n.dataset.alt){
+    var j = new Date();
+    var heute = j.getFullYear() + '-'
+      + String(j.getMonth() + 1).padStart(2, '0') + '-'
+      + String(j.getDate()).padStart(2, '0');
+    if(n.dataset.stand !== heute) n.textContent = n.dataset.alt;
+  }
+})();
+
+(function(){
+  // Nur in der Home-Screen-App: dort fehlt Ziehen-zum-Aktualisieren, und die
+  // Seite bleibt beim Zurueckwechseln im Speicher stehen statt neu zu laden.
+  var app = window.navigator.standalone === true
+         || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+  if(!app) return;
+
+  document.body.classList.add('app');
+  var knopf = document.querySelector('.refresh');
+
+  function neuLaden(){
+    knopf.classList.add('laedt');
+    // reload() schickt eine bedingte Anfrage; der Server liefert ETag und
+    // Last-Modified, es kommt also verlaesslich die aktuelle Fassung.
+    location.reload();
+  }
+  knopf.addEventListener('click', neuLaden);
+
+  var MIN = 60000, geladen = Date.now(), weg = 0;
+
+  // Zeitpunkt der juengsten fertig hochgeladenen Cron-Ausgabe. Der Cron
+  // startet 7:10; bis 7:45 sind auch mehrere faellige Themen durch.
+  function letzteAusgabe(){
+    var d = new Date();
+    d.setHours(7, 45, 0, 0);
+    if(Date.now() < d.getTime()) d.setDate(d.getDate() - 1);
+    return d.getTime();
+  }
+
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden){ weg = Date.now(); return; }
+    if(!weg) return;
+    var abwesend = Date.now() - weg;
+    // Kurzes Wegtippen loest nie ein Neuladen aus.
+    if(abwesend < 15 * MIN) return;
+    // Neu laden, wenn die angezeigte Fassung aelter ist als die juengste
+    // Cron-Ausgabe - deckt auch den Fall "morgens vor 7:10 kurz reingeschaut,
+    // um 9 wieder geoeffnet" ab, den eine reine Tageswechsel-Regel verpasst.
+    // Die 6-Stunden-Regel bleibt als Sicherheitsnetz daneben stehen.
+    if(geladen < letzteAusgabe() || abwesend >= 6 * 60 * MIN) neuLaden();
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+[
+  {
+    "id": "haupt",
+    "titel": "Vollständiges Dashboard",
+    "h1": "Was gerade wichtig ist",
+    "lead": "Keine Linkliste, keine Nachrichtenseite — eine eigene, destillierte Einschätzung zu ein paar Themen, die sich selbstständig aktuell hält.",
+    "remote": "dashboard",
+    "url": "https://example.com/dashboard/",
+    "blocks": [
+      "nachrichten",
+      "bundespolitik",
+      "bayerische-politik",
+      "aktienmarkt",
+      "ki",
+      "claude-anthropic",
+      "hackernews",
+      "apple",
+      "google",
+      "gaming-nintendo",
+      "switch2",
+      "buecher",
+      "muenchen",
+      "eichenau"
+    ]
+  },
+  {
+    "id": "regional",
+    "titel": "Regionales Dashboard",
+    "h1": "Was gerade wichtig ist",
+    "lead": "Keine Linkliste, keine Nachrichtenseite — eine eigene, destillierte Einschätzung zu ein paar Themen, die sich selbstständig aktuell hält.",
+    "remote": "dashboard-regional",
+    "url": "https://example.com/dashboard-regional/",
+    "blocks": [
+      "nachrichten",
+      "bundespolitik",
+      "bayerische-politik",
+      "muenchen",
+      "eichenau",
+      "sdp",
+      "tourismus-bayern"
+    ]
+  },
+  {
+    "id": "kompakt",
+    "titel": "Kompaktes Dashboard",
+    "h1": "Was gerade wichtig ist",
+    "lead": "Keine Linkliste, keine Nachrichtenseite — eine eigene, destillierte Einschätzung zu ein paar Themen, die sich selbstständig aktuell hält.",
+    "remote": "dashboard-kompakt",
+    "url": "https://example.com/dashboard-kompakt/",
+    "blocks": [
+      "nachrichten",
+      "braunschweig",
+      "wabeviertel"
+    ]
+  },
+  {
+    "id": "gaming",
+    "titel": "Gaming-Dashboard",
+    "h1": "Was gerade wichtig ist",
+    "lead": "Keine Linkliste, keine Nachrichtenseite — eine eigene, destillierte Einschätzung zu ein paar Themen, die sich selbstständig aktuell hält.",
+    "remote": "dashboard-gaming",
+    "url": "https://example.com/dashboard-gaming/",
+    "blocks": [
+      "nachrichten",
+      "ingolstadt",
+      "ingolstadt-immobilien",
+      "gaming-playstation",
+      "playstation-spiele",
+      "gaming-nintendo",
+      "switch2",
+      "buecher",
+      "ki",
+      "claude-anthropic",
+      "hackernews"
+    ]
+  }
+]

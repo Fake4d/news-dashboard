@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="180" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#141a29"/>
+      <stop offset="1" stop-color="#0a0c11"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="132" cy="40" r="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3ddc93" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#3ddc93" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bars" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffb04d"/>
+      <stop offset="1" stop-color="#e8912a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- iOS applies its own corner mask, so this fills edge to edge -->
+  <rect width="180" height="180" fill="url(#bg)"/>
+  <rect width="180" height="180" fill="url(#glow)"/>
+
+  <!-- ascending bars: the dashboard's own visual language -->
+  <g>
+    <rect x="46" y="98" width="20" height="42" rx="6" fill="#59b3a8"/>
+    <rect x="80" y="78" width="20" height="62" rx="6" fill="#8fd9cf"/>
+    <rect x="114" y="54" width="20" height="86" rx="6" fill="url(#bars)"/>
+  </g>
+
+  <!-- live pulse dot, echoing the "aktualisiert sich automatisch" badge -->
+  <circle cx="134" cy="46" r="9" fill="#3ddc93"/>
+  <circle cx="134" cy="46" r="9" fill="none" stroke="#3ddc93" stroke-width="2" opacity=".5">
+    <animate attributeName="r" values="9;16;9" dur="2.4s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values=".5;0;.5" dur="2.4s" repeatCount="indefinite"/>
+  </circle>
+</svg>
