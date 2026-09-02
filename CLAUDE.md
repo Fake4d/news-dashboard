@@ -35,6 +35,7 @@ eindeutig zuzuordnen ist.
 | wie recherchiert und formatiert wird | `skills/dashboard-update/SKILL.md` |
 | Parsen der Modellausgabe | `bin/dashboard_apply.py` |
 | Rendern der Seiten | `bin/dashboard_build.py` |
+| Farbpalette prüfen, umverteilen, vergleichen | `bin/dashboard_farben.py`, `bin/dashboard_farbvorschau.py` |
 | Fälligkeit, Modellaufruf, Upload | `bin/dashboard-update.sh` |
 
 **Eine neue Kachel ist reine JSON-Arbeit.** Nie HTML von Hand schreiben, nie in
@@ -98,9 +99,17 @@ Alle folgenden Punkte sind echte, bezahlte Fehler. Nicht neu entdecken:
 - **Ein nie befülltes Thema ist immer fällig**, auch am Wochenende.
 - **Fehlgeschlagener Upload löscht die lokal gebaute Datei**, sonst gilt die
   Seite als unverändert und der Upload wird nie nachgeholt.
-- **Farben:** dürfen sich zwischen Dashboards wiederholen, nie zwei gleiche auf
+- **Farben:** dürfen sich zwischen Dashboards wiederholen, nie zwei ähnliche auf
   derselben Seite. Die Puls-Farbe des Live-Badges ist die Farbe des *ersten*
   Themas der Seite.
+- **`farbe_dunkel` nicht von Hand eintragen.** Die Dunkelmodus-Farbe wird aus
+  Farbton und `dunkel_stufe` berechnet. Handgepflegte Dunkelfarben landen alle
+  im selben Helligkeitsfenster, und dann bleibt im Dunkelmodus nur noch der
+  Farbton zum Unterscheiden — genau daran ist die erste Palette gescheitert.
+- **Erst die Farbtöne, dann die Helligkeit.** Die berechneten Dunkelfarben
+  allein machen es *schlechter*, wenn die Töne zu dicht beieinander liegen
+  (gemessen: schlechtestes Paar 0.016 statt 0.041). `dashboard_farben.py
+  vorschlagen` macht beides zusammen.
 - **Cron-Uhrzeit steht an zwei Stellen.** Wird der Cron verschoben, muss
   `letzteAusgabe()` in `dashboard/template.html` mitgezogen werden — sonst lädt
   die Homescreen-App zur falschen Zeit nach.

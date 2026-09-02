@@ -25,6 +25,7 @@ eines Vielfachen.
 - [Neues Thema anlegen](#neues-thema-anlegen)
 - [Neues Dashboard anlegen](#neues-dashboard-anlegen)
 - [Darstellungsformate](#darstellungsformate)
+- [Farben](#farben)
 - [Frische-Anzeige](#frische-anzeige)
 - [Verhalten als Homescreen-App](#verhalten-als-homescreen-app)
 - [Einrichtung](#einrichtung)
@@ -38,10 +39,10 @@ Es gibt **mehrere Dashboards**, die sich Themen teilen können:
 
 | Dashboard | Themen |
 |---|---|
-| Vollständig | Nachrichtenüberblick, Bundespolitik, Bayerische Politik, Aktienmarkt, KI, Claude & Anthropic, Hacker News, Apple, Google, Nintendo, Switch 2, Bücher, München, Eichenau |
-| Regional | Nachrichtenüberblick, Bundespolitik, Bayerische Politik, München, Eichenau, SDP, Tourismus in Bayern |
-| Gaming | Nachrichtenüberblick, Ingolstadt, Immobilienmarkt Ingolstadt, PlayStation, PS-Spiele, Nintendo, Switch 2, Bücher, KI, Claude & Anthropic, Hacker News |
-| Kompakt | Nachrichtenüberblick, Braunschweig, Wabeviertel |
+| Vollständig | Nachrichtenüberblick, Top-Story, Bundespolitik, Bayerische Politik, Aktienmarkt, Trade Republic, KI, Claude & Anthropic, Hacker News, Apple, Google, Nintendo, Switch 2, Bücher, München, Eichenau |
+| Regional | Nachrichtenüberblick, Top-Story, Bundespolitik, Bayerische Politik, München, Eichenau, SDP, Tourismus in Bayern |
+| Gaming | Nachrichtenüberblick, Top-Story, Ingolstadt, Immobilienmarkt Ingolstadt, PlayStation, PS-Spiele, Nintendo, Switch 2, Bücher, KI, Claude & Anthropic, Hacker News |
+| Kompakt | Nachrichtenüberblick, Top-Story, Braunschweig, Wabeviertel |
 
 > Die mitgelieferte `dashboards.json` ist eine **anonymisierte Beispiel­konfiguration**
 > mit `example.com`-Adressen. Im real laufenden System heißen die vier Seiten
@@ -112,7 +113,10 @@ läuft und breit über mehrere Ressorts recherchiert.
 | `skills/dashboard-update/SKILL.md` | die Rechercheanweisung an das Modell |
 | `bin/dashboard-update.sh` | Cron-Dispatcher: Fälligkeit → Modelllauf → bauen → hochladen |
 | `bin/dashboard_apply.py` | Parser: Modellausgabe → State. Kein Modellaufruf |
-| `bin/dashboard_build.py` | Generator: Vorlage + State → HTML. Kein Modellaufruf |
+| `bin/dashboard_build.py` | Generator: Vorlage + State → HTML, prüft dabei die Farbabstände. Kein Modellaufruf |
+| `bin/dashboard_farbe.py` | Farbmathematik: sRGB ↔ OKLab/OKLCH, Abstand, Kontrast |
+| `bin/dashboard_farben.py` | Werkzeug: Palette prüfen, Vorschlag rechnen, anwenden |
+| `bin/dashboard_farbvorschau.py` | baut eine Vergleichsseite für Farbvorschläge |
 
 Bewusst getrennt: **Der Skill fasst keine Dateien an.** Er bekommt Thema und
 bisherigen Stand komplett über den Prompt herein und gibt seine Antwort in einem
@@ -212,6 +216,10 @@ Was sich bewährt hat:
 | `zusatzabsatz_hinweis` | zweiter, **getrennt** recherchierter Absatz (siehe `ki`-Block) |
 | `format: "liste"` | Meldungsliste statt Fließtext (siehe unten) |
 | `breit: true` | Kachel über alle Rasterspalten, Liste zweispaltig |
+| `titel_dynamisch: true` | die Kachel heißt nach ihrem heutigen Inhalt (siehe unten) |
+| `dunkel_stufe` | Helligkeit der Farbe im Dunkelmodus: `hell`, `mittel` oder `tief` |
+| `familie` | zwei Themen derselben Familie dürfen sich farblich ähneln |
+| `farbe_dunkel` | Notausgang: übersteuert die berechnete Dunkelmodus-Farbe |
 
 ## Neues Dashboard anlegen
 
@@ -242,6 +250,68 @@ Zeile ohne Marker ab** — dann wird nichts geschrieben und die Kachel bleibt au
 dem Stand des Vortags, statt kaputt zu rendern. `dashboard_build.py` macht
 daraus ein `<ul class="news">`; `~`-Zeilen bekommen die Klasse `leicht`
 (gedämpfte Schrift, runder Punkt in einer eigenen Akzentfarbe).
+
+### Kacheln, die sich selbst benennen
+
+Normalerweise steht der Kacheltitel fest in `blocks.json`. Mit
+`"titel_dynamisch": true` wird er dagegen **Teil des Inhalts**: Der Prompt
+bekommt die Zeile `Kacheltitel: DYNAMISCH`, das Modell liefert eine zusätzliche
+`TITEL:`-Zeile, und die wandert als `kachel_titel` in den State.
+`dashboard_build.py` zieht den State-Titel dem statischen vor.
+
+Gedacht ist das für die Top-Story: Die Kachel heißt dann nicht „Die Geschichte
+des Tages", sondern „Konflikt zwischen USA und Iran eskaliert".
+
+Fehlt die Zeile oder ist sie länger als 80 Zeichen, **fällt der ganze Lauf
+durch** und die Kachel bleibt auf dem Stand von gestern. Das ist Absicht:
+lieber die gestrige Geschichte unter ihrer eigenen Überschrift als die heutige
+unter der gestrigen.
+
+## Farben
+
+Jede Kachel hat eine Akzentfarbe. Zwei Kacheln **derselben Seite** dürfen sich
+nicht ähnlich sehen; über verschiedene Dashboards hinweg darf sich eine Farbe
+dagegen wiederholen.
+
+Von Hand ist das ab etwa einem Dutzend Kacheln nicht mehr zu überblicken —
+Hex-Werte sagen nichts darüber aus, wie ähnlich zwei Farben *wirken*. Deshalb
+rechnet das Projekt in **OKLab**, einem wahrnehmungsnahen Farbraum: Der Abstand
+zweier Farben dort entspricht ungefähr dem, was das Auge als Unterschied sieht.
+Als Schwellen gelten 0,030 (praktisch gleich) und 0,075 (spürbar ähnlich).
+
+**Die Dunkelmodus-Farbe wird berechnet, nicht gepflegt.** In `blocks.json` steht
+nur `farbe` (Hellmodus) und `dunkel_stufe`; `dashboard_build.py` übernimmt den
+Farbton und setzt Helligkeit und Buntheit nach fester Regel
+(`DUNKEL_STUFEN`, `DUNKEL_BUNTHEIT`).
+
+Der Grund dafür ist eine Falle, in die dieses Projekt zuerst hineingelaufen ist:
+Von Hand aufgehellte Dunkelfarben landen alle im selben schmalen Fenster — ähnlich
+hell, ähnlich blass. Damit bleibt im Dunkelmodus **der Farbton als einziges
+Unterscheidungsmerkmal** übrig, und bei 16 Kacheln auf einer Seite reicht das
+nicht: Die volle Seite hatte 7 zu ähnliche Paare im Hellmodus, aber 20 im
+Dunkelmodus. Die Stufe gibt die Helligkeit als zweite Unterscheidungsachse zurück.
+
+**Der Generator prüft mit.** `farben_pruefen()` vergleicht jedes Kachelpaar jeder
+Seite in beiden Modi, meldet alles unter 0,075 auf stderr und bricht unter 0,030
+ab. Eine neue Kachel kann damit nicht mehr unbemerkt die Farbe einer bestehenden
+übernehmen.
+
+Zum Nachrechnen und Umverteilen:
+
+```bash
+python3 bin/dashboard_farben.py pruefen              # Bericht: welche Paare stehen sich zu nah
+python3 bin/dashboard_farben.py vorschlagen --spielraum 18 --ziel /tmp/v.json
+python3 bin/dashboard_farbvorschau.py ~/vergleich.html "Vorschlag=/tmp/v.json"
+python3 bin/dashboard_farben.py anwenden /tmp/v.json  # schreibt farbe + dunkel_stufe
+```
+
+`vorschlagen` dreht die Farbtöne so weit wie nötig und verteilt die
+Helligkeitsstufen neu; `--spielraum` begrenzt, um wie viel Grad sich ein Ton
+höchstens drehen darf — die Bremse, damit ein gewachsenes Design erkennbar
+bleibt. Optimiert wird das **schlechteste** Paar, nicht der Durchschnitt: Eine
+Palette ist so gut wie ihre schlechteste Unterscheidung. Deshalb ist mehr
+Spielraum auch nicht automatisch besser; im echten Fall lieferten 18° ein
+minimal besseres Ergebnis als 25°, bei sichtbar weniger Verfremdung.
 
 ## Frische-Anzeige
 

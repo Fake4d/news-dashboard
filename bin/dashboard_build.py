@@ -16,9 +16,13 @@ geschrieben.
 """
 import datetime
 import html
+import itertools
 import json
 import pathlib
 import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import dashboard_farbe as farbe
 
 CLAUDE = pathlib.Path("/home/gra/claude")
 DASH = CLAUDE / "dashboard"
@@ -29,6 +33,23 @@ ZIEL = DASH / "gebaut"
 STATE_DIR = CLAUDE / "state" / "dashboard"
 ASSETS = DASH / "assets"
 
+# Die Dunkelmodus-Farbe wird aus der Hellfarbe gerechnet, nicht von Hand
+# gepflegt: gleicher Farbton, aber feste Buntheit und eine von drei
+# Helligkeitsstufen (dunkel_stufe in blocks.json). Handgewaehlte Dunkelfarben
+# waren alle aehnlich hell und aehnlich blass - damit blieb im Dunkelmodus der
+# Farbton als einziges Unterscheidungsmerkmal uebrig, und bei 16 Kacheln auf
+# einer Seite reicht das nicht. Die Stufe gibt die zweite Achse zurueck.
+DUNKEL_STUFEN = {"hell": 0.88, "mittel": 0.78, "tief": 0.68}
+DUNKEL_BUNTHEIT = 0.15
+
+# Wachhund: zwei Kacheln derselben Seite duerfen nicht dieselbe Farbe zu haben
+# scheinen. Abstand in OKLab, also ungefaehr das, was das Auge als Unterschied
+# sieht. Unter WARNEN wird gemeckert, unter BLOCKIEREN bricht der Build ab -
+# eine neue Kachel soll nicht stillschweigend die Farbe einer bestehenden
+# uebernehmen.
+ABSTAND_WARNEN = 0.075
+ABSTAND_BLOCKIEREN = 0.030
+
 MONATE = [
     "", "Januar", "Februar", "März", "April", "Mai", "Juni",
     "Juli", "August", "September", "Oktober", "November", "Dezember",
@@ -38,6 +59,49 @@ MONATE = [
 def fehler(msg):
     print(f"FEHLER: {msg}", file=sys.stderr)
     sys.exit(1)
+
+
+def farbe_dunkel(block):
+    """Dunkelmodus-Farbe eines Themas: gleicher Farbton, Helligkeit nach Stufe.
+
+    Ein ausdruecklich eingetragenes farbe_dunkel hat Vorrang - fuer den Fall,
+    dass ein Thema eine handgewaehlte Ausnahme braucht.
+    """
+    if block.get("farbe_dunkel"):
+        return block["farbe_dunkel"]
+    stufe = block.get("dunkel_stufe", "mittel")
+    if stufe not in DUNKEL_STUFEN:
+        fehler(f"Block {block['id']}: unbekannte dunkel_stufe {stufe!r} "
+               f"(erlaubt: {', '.join(DUNKEL_STUFEN)})")
+    _, _, ton = farbe.hex_zu_oklch(block["farbe"])
+    return farbe.oklch_zu_hex(DUNKEL_STUFEN[stufe], DUNKEL_BUNTHEIT, ton)
+
+
+def farben_pruefen(dashboards, blocks_nach_id):
+    """Meldet Kachelpaare, die auf derselben Seite zu aehnlich aussehen."""
+    zu_nah = []
+    for d in dashboards:
+        for a, b in itertools.combinations(d["blocks"], 2):
+            ba, bb = blocks_nach_id[a], blocks_nach_id[b]
+            # Themen einer Familie (z.B. Bundes- und Landespolitik) duerfen
+            # verwandt aussehen - das ist Absicht, keine Kollision.
+            if ba.get("familie") and ba.get("familie") == bb.get("familie"):
+                continue
+            for modus, wert in (("hell", "farbe"), ("dunkel", None)):
+                fa = ba[wert] if wert else farbe_dunkel(ba)
+                fb = bb[wert] if wert else farbe_dunkel(bb)
+                ab = farbe.abstand(fa, fb)
+                if ab < ABSTAND_WARNEN:
+                    zu_nah.append((ab, d["id"], modus, a, fa, b, fb))
+    for ab, did, modus, a, fa, b, fb in sorted(zu_nah):
+        wie = "ZU AEHNLICH" if ab >= ABSTAND_BLOCKIEREN else "PRAKTISCH GLEICH"
+        print(f"Farbe {wie} ({ab:.3f}) auf {did}, {modus}: {a} {fa} / {b} {fb}",
+              file=sys.stderr)
+    schlimmste = [z for z in zu_nah if z[0] < ABSTAND_BLOCKIEREN]
+    if schlimmste:
+        fehler(f"{len(schlimmste)} Kachelpaar(e) sind farblich nicht mehr zu "
+               f"unterscheiden - blocks.json korrigieren "
+               f"(bin/dashboard_farben.py hilft beim Vorschlag)")
 
 
 def deutsches_datum(iso):
@@ -100,6 +164,11 @@ def karte_bauen(block):
         inhalt = "".join(f'<p class="text">{html.escape(a)}</p>' for a in absaetze)
         stand = f"Stand: {deutsches_datum(state['stand_datum'])}"
 
+    # Kacheln, die sich nach ihrem Inhalt benennen (Top-Story), tragen ihren
+    # Titel im State. Solange sie noch nie befuellt wurden, greift der feste
+    # Titel aus blocks.json als Platzhalter.
+    titel = (state or {}).get("kachel_titel") or block.get("kachel_titel", block["titel"])
+
     # Breite Kacheln (z.B. der Nachrichtenueberblick) laufen ueber alle Spalten
     # des Rasters, damit eine lange Liste nicht als schmale Saeule dasteht.
     klassen = "card wide" if block.get("breit") else "card"
@@ -110,7 +179,7 @@ def karte_bauen(block):
           <span class="icon">{block["icon"]}</span>
           <div class="titles">
             <p class="card-eyebrow">{html.escape(block["eyebrow"])}</p>
-            <p class="card-title">{html.escape(block.get("kachel_titel", block["titel"]))}</p>
+            <p class="card-title">{html.escape(titel)}</p>
           </div>
         </div>
         {inhalt}
@@ -135,10 +204,10 @@ def seite_bauen(dashboard, blocks_nach_id, vorlage):
     # Die Puls-Farbe des Live-Badges richtet sich nach dem ersten Thema der
     # Seite - sonst haette ein Dashboard ohne den Aktienmarkt-Block gar keine.
     farben_hell = [f'    --c-live:{blocks[0]["farbe"]};']
-    farben_dunkel = [f'      --c-live:{blocks[0]["farbe_dunkel"]};']
+    farben_dunkel = [f'      --c-live:{farbe_dunkel(blocks[0])};']
     for b in blocks:
         farben_hell.append(f'    --c-{b["id"]}:{b["farbe"]};')
-        farben_dunkel.append(f'      --c-{b["id"]}:{b["farbe_dunkel"]};')
+        farben_dunkel.append(f'      --c-{b["id"]}:{farbe_dunkel(b)};')
 
     # Die Sprungleiste ist zugleich die Uebersicht "was ist heute neu": heute
     # inhaltlich geaenderte Themen stehen kraeftig da, der Bestand tritt
@@ -212,6 +281,8 @@ def main():
     blocks_nach_id = {b["id"]: b for b in blocks}
     if len(blocks_nach_id) != len(blocks):
         fehler("blocks.json enthaelt doppelte IDs")
+
+    farben_pruefen(dashboards, blocks_nach_id)
 
     # Erst alle Seiten rendern, dann schreiben: bei einem Fehler in Dashboard 2
     # soll Dashboard 1 nicht schon halb aktualisiert auf der Platte liegen.

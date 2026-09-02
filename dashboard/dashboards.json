@@ -8,9 +8,11 @@
     "url": "https://example.com/dashboard/",
     "blocks": [
       "nachrichten",
+      "topstory",
       "bundespolitik",
       "bayerische-politik",
       "aktienmarkt",
+      "trade-republic",
       "ki",
       "claude-anthropic",
       "hackernews",
@@ -32,6 +34,7 @@
     "url": "https://example.com/dashboard-regional/",
     "blocks": [
       "nachrichten",
+      "topstory",
       "bundespolitik",
       "bayerische-politik",
       "muenchen",
@@ -49,6 +52,7 @@
     "url": "https://example.com/dashboard-kompakt/",
     "blocks": [
       "nachrichten",
+      "topstory",
       "braunschweig",
       "wabeviertel"
     ]
@@ -62,6 +66,7 @@
     "url": "https://example.com/dashboard-gaming/",
     "blocks": [
       "nachrichten",
+      "topstory",
       "ingolstadt",
       "ingolstadt-immobilien",
       "gaming-playstation",

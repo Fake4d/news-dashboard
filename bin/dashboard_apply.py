@@ -7,12 +7,18 @@ der HTML-Seiten macht danach dashboard_build.py - ein Thema kann in mehreren
 Dashboards vorkommen, hat aber nur diesen einen State und wird deshalb nur
 einmal recherchiert.
 
-Aufruf:  dashboard_apply.py <block-id> [format]   (Modell-Ausgabe auf stdin)
+Aufruf:  dashboard_apply.py <block-id> [format] [titel-dynamisch]
+         (Modell-Ausgabe auf stdin)
 
 Format ist leer (Fliesstext-Absaetze, Standard) oder 'liste': dann besteht
 QUINTESSENZ aus je einer Zeile pro Meldung, eingeleitet durch '* ' (ernst) oder
 '~ ' (leicht/boulevardesk). Die Marker bleiben im State erhalten, damit
 dashboard_build.py beide Sorten unterschiedlich rendern kann.
+
+Titel-dynamisch ('1'): der Block heisst auf der Seite nach seinem Inhalt, nicht
+nach einem festen Eintrag in blocks.json (Top-Story des Tages). Dann ist eine
+zusaetzliche TITEL-Zeile Pflicht, die als kachel_titel in den State wandert;
+dashboard_build.py zieht sie dem statischen Titel vor.
 
 Gibt auf stdout genau ein Wort aus: 'geaendert' oder 'unveraendert'.
 Bei unparsbarer Ausgabe: Fehlermeldung auf stderr, Exit-Code 1, nichts
@@ -33,7 +39,7 @@ def fehler(msg):
     sys.exit(1)
 
 
-def parse(ausgabe, block_id, formatart):
+def parse(ausgabe, block_id, formatart, titel_dynamisch):
     status_m = re.search(r"^STATUS:\s*(geaendert|unveraendert)\s*$", ausgabe, re.M)
     if not status_m:
         fehler(f"Block {block_id}: keine erkennbare STATUS-Zeile in der Modell-Ausgabe")
@@ -49,6 +55,19 @@ def parse(ausgabe, block_id, formatart):
 
     if status == "unveraendert":
         return {"status": status, "stand": stand}
+
+    # Nur bei dynamischem Titel: die Kachel heisst nach ihrem heutigen Inhalt.
+    # Fehlt die Zeile, faellt der ganze Lauf durch und die Kachel bleibt auf
+    # dem Vortagesstand - lieber die gestrige Geschichte unter ihrer eigenen
+    # Ueberschrift als die heutige unter der gestrigen.
+    kachel_titel = None
+    if titel_dynamisch:
+        titel_m = re.search(r"^TITEL:\s*(\S.*?)\s*$", ausgabe, re.M)
+        if not titel_m:
+            fehler(f"Block {block_id}: TITEL-Zeile fehlt (dieser Block benennt sich nach seinem Inhalt)")
+        kachel_titel = " ".join(titel_m.group(1).split()).rstrip(".")
+        if len(kachel_titel) > 80:
+            fehler(f"Block {block_id}: TITEL zu lang ({len(kachel_titel)} Zeichen, hoechstens 80)")
 
     kern_m = re.search(r"^KERNAUSSAGEN:\s*\n((?:-.*\n?)+)", ausgabe, re.M)
     if not kern_m:
@@ -78,7 +97,7 @@ def parse(ausgabe, block_id, formatart):
         if not punkte:
             fehler(f"Block {block_id}: Listenformat verlangt, aber keine Meldung gefunden")
         return {"status": status, "stand": stand, "kernaussagen": kernaussagen,
-                "format": "liste", "teile": punkte}
+                "format": "liste", "teile": punkte, "kachel_titel": kachel_titel}
 
     # Absaetze sind durch eine komplett leere Zeile getrennt (z.B. Hauptabsatz +
     # Zusatzabsatz); innerhalb eines Absatzes wird alles zu einer Zeile.
@@ -91,14 +110,15 @@ def parse(ausgabe, block_id, formatart):
         fehler(f"Block {block_id}: QUINTESSENZ-Abschnitt fehlt oder ist leer")
 
     return {"status": status, "stand": stand, "kernaussagen": kernaussagen,
-            "format": "text", "teile": absaetze}
+            "format": "text", "teile": absaetze, "kachel_titel": kachel_titel}
 
 
 def main():
-    if len(sys.argv) not in (2, 3):
-        fehler("Aufruf: dashboard_apply.py <block-id> [format]")
+    if len(sys.argv) not in (2, 3, 4):
+        fehler("Aufruf: dashboard_apply.py <block-id> [format] [titel-dynamisch]")
     block_id = sys.argv[1]
-    formatart = sys.argv[2] if len(sys.argv) == 3 else ""
+    formatart = sys.argv[2] if len(sys.argv) >= 3 else ""
+    titel_dynamisch = len(sys.argv) >= 4 and sys.argv[3] == "1"
     if formatart not in ("", "text", "liste"):
         fehler(f"unbekanntes Format {formatart!r} (erlaubt: leer, text, liste)")
 
@@ -106,7 +126,7 @@ def main():
     if not state_pfad.exists():
         fehler(f"State-Datei fehlt: {state_pfad}")
 
-    ergebnis = parse(sys.stdin.read(), block_id, formatart)
+    ergebnis = parse(sys.stdin.read(), block_id, formatart, titel_dynamisch)
 
     state = json.loads(state_pfad.read_text(encoding="utf-8"))
     heute = datetime.date.today().isoformat()
@@ -125,6 +145,8 @@ def main():
     state["quintessenz_text"] = trenner.join(ergebnis["teile"])
     state["format"] = ergebnis["format"]
     state["kernaussagen"] = ergebnis["kernaussagen"]
+    if ergebnis["kachel_titel"]:
+        state["kachel_titel"] = ergebnis["kachel_titel"]
     state_pfad.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     print("geaendert")

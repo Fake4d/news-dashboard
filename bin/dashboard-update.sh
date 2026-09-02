@@ -61,7 +61,7 @@ fi
 
 # -------------------------------------------------- Faellige Themen ermitteln --
 # Reine Lese-/Vergleichslogik, kostet nichts. Eine Zeile pro Thema, Felder:
-# id  titel  hinweis  zusatzhinweis  format  cadence_days  faellig(0/1)  stand  letzter_check  kernaussagen(||)  text
+# id  titel  hinweis  zusatzhinweis  format  titel_dynamisch  cadence_days  faellig(0/1)  stand  letzter_check  kernaussagen(||)  text
 #
 # Trennzeichen ist ASCII 0x1F (Unit Separator), NICHT Tab: Tab ist fuer bash ein
 # Whitespace-Trennzeichen, deshalb wuerde `IFS=$'\t' read` zwei aufeinander-
@@ -120,6 +120,7 @@ for b in blocks:
         bid, clean(b["titel"]), clean(b["recherche_hinweis"]),
         clean(b.get("zusatzabsatz_hinweis", "")),
         b.get("format", "text"),
+        "1" if b.get("titel_dynamisch") else "0",
         str(b["cadence_days"]), "1" if faellig else "0",
         state["stand_datum"], check.isoformat(), clean(kern), clean(state.get("quintessenz_text", "")),
     ]
@@ -134,7 +135,7 @@ fi
 
 LAEUFE=0
 
-while IFS=$'\x1f' read -r ID TITEL HINWEIS ZUSATZ FORMAT CADENCE FAELLIG STAND CHECK KERN TEXT; do
+while IFS=$'\x1f' read -r ID TITEL HINWEIS ZUSATZ FORMAT TITELDYN CADENCE FAELLIG STAND CHECK KERN TEXT; do
     [ -z "$ID" ] && continue
 
     if [ -n "$NUR_BLOCK" ] && [ "$ID" != "$NUR_BLOCK" ]; then
@@ -169,6 +170,12 @@ Zusatzabsatz-Hinweis (zweiter, separat recherchierter Absatz zusätzlich zum Hau
 Ausgabeformat: LISTE (nicht Fließtext) — QUINTESSENZ enthält je Meldung genau eine Zeile, eingeleitet mit '* ' für eine ernste und '~ ' für eine leichte/boulevardeske Meldung. Siehe Abschnitt 'Listenformat' im Skill."
     fi
 
+    TITEL_ZEILE=""
+    if [ "$TITELDYN" = "1" ]; then
+        TITEL_ZEILE="
+Kacheltitel: DYNAMISCH — diese Kachel heißt auf der Seite nach ihrem heutigen Inhalt. Gib deshalb zusätzlich eine TITEL-Zeile aus (direkt nach STAND). Siehe Abschnitt 'Dynamischer Kacheltitel' im Skill."
+    fi
+
     # stdin auf /dev/null: claude -p liest gepipetes stdin als Eingabe mit
     # und wuerde sonst die restlichen Themen-Zeilen der Schleife verschlucken
     # (nur das erste faellige Thema liefe, der Rest fiele stumm aus).
@@ -179,7 +186,7 @@ Ausgabeformat: LISTE (nicht Fließtext) — QUINTESSENZ enthält je Meldung gena
 
 Thema: $TITEL
 Rechercheanweisung: $HINWEIS
-$ZUSATZ_ZEILE$FORMAT_ZEILE
+$ZUSATZ_ZEILE$FORMAT_ZEILE$TITEL_ZEILE
 
 Bisheriger Stand (zuletzt geändert am $STAND):
 Kernaussagen bisher: $KERN
@@ -194,7 +201,7 @@ Gib die Antwort EXAKT im vorgegebenen Format des Skills aus, sonst nichts - kein
         continue
     fi
 
-    ANWENDUNG=$(printf '%s\n' "$MODELL_AUSGABE" | python3 "$APPLY" "$ID" "$FORMAT" 2>>"$LOG")
+    ANWENDUNG=$(printf '%s\n' "$MODELL_AUSGABE" | python3 "$APPLY" "$ID" "$FORMAT" "$TITELDYN" 2>>"$LOG")
     arc=$?
     if [ "$arc" -ne 0 ]; then
         log "Thema $ID: dashboard_apply.py fehlgeschlagen (exit $arc) - uebersprungen, nichts geschrieben"
