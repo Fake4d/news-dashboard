@@ -4,10 +4,13 @@
 # Claude-Lauf - genau wie mailcheck/refcheck/boris.
 #
 # Aufbau seit 30.08.2026:
-#   dashboard/blocks.json      Themen-Registry (ein Eintrag je Thema)
-#   dashboard/dashboards.json  welches Dashboard zeigt welche Themen
-#   dashboard/template.html    gemeinsame Design-Vorlage
-#   state/dashboard/<id>.json  Gedaechtnis je THEMA, nicht je Dashboard
+#   dashboard/blocks.json        Themen-Registry (ein Eintrag je Thema)
+#   dashboard/dashboards.json    welches Dashboard zeigt welche Themen
+#   dashboard/site.json          Basis-Adresse + Ordner der Themenseiten
+#   dashboard/template.html      gemeinsame Design-Vorlage
+#   dashboard/template-thema.html  Einzelseite je Thema (zum Weitergeben)
+#   dashboard/thema-index.html   Sperrseite fuer /thema/
+#   state/dashboard/<id>.json    Gedaechtnis je THEMA, nicht je Dashboard
 #
 # Ein Thema, das in mehreren Dashboards vorkommt (z.B. muenchen, eichenau),
 # hat genau einen State und wird deshalb auch nur EINMAL recherchiert; der
@@ -220,7 +223,8 @@ fi
 # Immer bauen, auch wenn kein Thema lief: so wirken auch Aenderungen an
 # Vorlage, blocks.json oder dashboards.json, und verlorene Dateien heilen von
 # selbst. Gebaut wird nur geschrieben, was sich inhaltlich unterscheidet -
-# der Generator meldet genau diese Dashboard-IDs zurueck.
+# der Generator meldet genau diese Seiten zurueck, je eine Zeile mit
+# 0x1F-getrennten Feldern (siehe Upload-Schleife weiter unten).
 GEBAUT=$(python3 "$BUILD" 2>>"$LOG")
 brc=$?
 if [ "$brc" -ne 0 ]; then

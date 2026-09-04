@@ -108,7 +108,16 @@ Alle folgenden Punkte sind echte, bezahlte Fehler. Nicht neu entdecken:
 - **Die Themen-Einzelseiten dürfen nie auf ein Dashboard zurückverlinken.** Ihr
   Zweck ist, eine Kachel weiterzugeben, *ohne* das Dashboard herzugeben. Aus
   demselben Grund liegt unter `/thema/` eine Sperrseite ohne Themenliste — sonst
-  listet der Webserver das Verzeichnis auf und stellt alle Themen aus.
+  listet der Webserver das Verzeichnis auf und stellt alle Themen aus. Auch die
+  Fußzeile ist deshalb **Text statt Link**: die Startseite der Domain listet
+  alle Dashboards auf, ein Klick von dort wäre genau der Rückweg.
+- **`template-thema.html` und `thema-index.html` landen vollständig beim
+  Empfänger — Kommentare eingeschlossen.** Keine Begründungen, keine lokalen
+  Pfade, nicht das Wort „Dashboard" hineinschreiben; das gehört in die README,
+  hier höchstens ein Verweis darauf. Beide Fehler sind schon passiert.
+- **Die Platzhalter-Endkontrolle prüft `%%NAME%%`, nicht bloß `%%`.** Sonst
+  bricht ein Kacheltext mit „5%% Rendite" den gesamten Build ab, und zwar erst
+  nach der teuren Recherche. Beim Erweitern der Vorlagen dabei bleiben.
 - **Farben:** dürfen sich zwischen Dashboards wiederholen, nie zwei ähnliche auf
   derselben Seite. Die Puls-Farbe des Live-Badges ist die Farbe des *ersten*
   Themas der Seite.

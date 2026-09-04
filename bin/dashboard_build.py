@@ -31,6 +31,7 @@ import html
 import itertools
 import json
 import pathlib
+import re
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -52,6 +53,19 @@ ASSETS = DASH / "assets"
 # in dashboard-update.sh: Tab ist fuer bash Whitespace, ein leeres Feld wuerde
 # stillschweigend alle Folgespalten verschieben.
 TRENN = "\x1f"
+
+# Erlaubte Block-IDs. Die ID ist nicht nur Kosmetik: sie landet als
+# Verzeichnisname unter gebaut/thema/, als Pfad in der Upload-Zeile, in einem
+# href und in einem CSS-Variablennamen. Ein Tippfehler mit "/" oder ".." wuerde
+# ausserhalb des Zielbaums schreiben, ein Anfuehrungszeichen das href
+# aufbrechen. Die README bittet um Kleinbuchstaben - hier wird es durchgesetzt.
+ID_MUSTER = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
+
+# Platzhalter in den Vorlagen. Nach dem Einsetzen darf keiner mehr uebrig sein.
+# Bewusst eng gefasst: eine Pruefung auf blosse "%%" wuerde auch an einem
+# Kacheltext mit "5%% Rendite" ausschlagen und den GESAMTEN Build abbrechen -
+# und zwar erst, nachdem die teure Recherche gelaufen ist.
+PLATZHALTER = re.compile(r"%%[A-Z_]+%%")
 
 # Die Dunkelmodus-Farbe wird aus der Hellfarbe gerechnet, nicht von Hand
 # gepflegt: gleicher Farbton, aber feste Buntheit und eine von drei
@@ -179,6 +193,25 @@ def kachel_titel(block, state):
     return (state or {}).get("kachel_titel") or block.get("kachel_titel", block["titel"])
 
 
+def klartext(state, aufzaehlung="• "):
+    """Kacheltext ohne Auszeichnung, Listenmarker durch ein Zeichen ersetzt.
+
+    Die Marker '*' und '~' sind eine interne Formatangabe des Skills. Sie
+    duerfen weder in der Zwischenablage noch in der Link-Vorschau auftauchen -
+    dort las man sonst "* Bei Waldbraenden ... * Syrien hat ...".
+    """
+    text = state["quintessenz_text"]
+    if state.get("format") != "liste":
+        return text.strip()
+    zeilen = []
+    for zeile in text.split("\n"):
+        zeile = zeile.strip()
+        if not zeile:
+            continue
+        zeilen.append(aufzaehlung + (zeile[1:].strip() if zeile[:1] in ("*", "~") else zeile))
+    return "\n".join(zeilen)
+
+
 def rohtext(block, state, url):
     """Der Kacheltext als Klartext - das, was der Kopierknopf weitergibt.
 
@@ -188,19 +221,9 @@ def rohtext(block, state, url):
     """
     titel = kachel_titel(block, state)
     if state is None:
-        return f"{titel}\n\n(noch nicht befuellt)\n\n{url}"
+        return f"{titel}\n\n(noch nicht befüllt)\n\n{url}"
     kopf = f"{titel} — Stand: {deutsches_datum(state['stand_datum'])}"
-    if state.get("format") == "liste":
-        zeilen = []
-        for zeile in state["quintessenz_text"].split("\n"):
-            zeile = zeile.strip()
-            if not zeile:
-                continue
-            zeilen.append("• " + (zeile[1:].strip() if zeile[:1] in ("*", "~") else zeile))
-        koerper = "\n".join(zeilen)
-    else:
-        koerper = state["quintessenz_text"].strip()
-    return f"{kopf}\n\n{koerper}\n\n{url}"
+    return f"{kopf}\n\n{klartext(state)}\n\n{url}"
 
 
 def karte_bauen(block, permalink=None):
@@ -235,7 +258,7 @@ def karte_bauen(block, permalink=None):
     return f'''    <article class="{klassen}" id="block-{bid}" style="--accent:var(--c-{bid})">
       <div class="card-body">
         <div class="card-head">
-          <span class="icon">{block["icon"]}</span>
+          <span class="icon">{html.escape(block["icon"])}</span>
           <div class="titles">
             <p class="card-eyebrow">{html.escape(block["eyebrow"])}</p>
             <p class="card-title">{html.escape(titel)}</p>
@@ -260,10 +283,12 @@ def themenseite_bauen(block, vorlage, basis_url, thema_remote):
     state = state_lesen(bid)
     url = f"{basis_url}/{thema_remote}/{bid}/"
 
+    titel = kachel_titel(block, state)
+
     if state is None:
         inhalt = '<p class="text empty">Wird beim nächsten Lauf befüllt.</p>'
         stand = "Stand: —"
-        beschreibung = f"{block['titel']} — wird beim nächsten Lauf befüllt."
+        beschreibung = f"{titel} — wird beim nächsten Lauf befüllt."
     else:
         if state.get("format") == "liste":
             inhalt = liste_rendern(state["quintessenz_text"])
@@ -272,20 +297,21 @@ def themenseite_bauen(block, vorlage, basis_url, thema_remote):
             inhalt = "".join(f'<p class="text">{html.escape(a)}</p>' for a in absaetze)
         stand = f"Stand: {deutsches_datum(state['stand_datum'])}"
         # Vorschautext fuer WhatsApp/iMessage: der Anfang des Textes, an einer
-        # Wortgrenze gekappt.
-        roh = " ".join(state["quintessenz_text"].split())
+        # Wortgrenze gekappt. Ueber klartext(), sonst stuenden die Listenmarker
+        # des Skills in der Vorschau - genau dort, wo der Link gelesen wird.
+        roh = " ".join(klartext(state, aufzaehlung="").split())
         beschreibung = roh if len(roh) <= 200 else roh[:200].rsplit(" ", 1)[0] + " …"
 
     # Klartext fuer die Zwischenablage. Steckt in einem Attribut, deshalb
     # muessen auch die Zeilenumbrueche kodiert werden - roh wuerden manche
     # Parser sie zu Leerzeichen glaetten.
-    klartext = html.escape(rohtext(block, state, url), quote=True).replace("\n", "&#10;")
+    kopiertext = html.escape(rohtext(block, state, url), quote=True).replace("\n", "&#10;")
 
     seite = vorlage
     for platzhalter, wert in [
-        ("%%TITEL%%", html.escape(kachel_titel(block, state))),
+        ("%%TITEL%%", html.escape(titel)),
         ("%%EYEBROW%%", html.escape(block["eyebrow"])),
-        ("%%ICON%%", block["icon"]),
+        ("%%ICON%%", html.escape(block["icon"])),
         ("%%URL%%", html.escape(url)),
         ("%%BESCHREIBUNG%%", html.escape(beschreibung)),
         ("%%FARBE_HELL%%", block["farbe"]),
@@ -293,11 +319,11 @@ def themenseite_bauen(block, vorlage, basis_url, thema_remote):
         ("%%INHALT%%", inhalt),
         ("%%STAND%%", stand),
         ("%%TAKT%%", takt_text(block)),
-        ("%%ROHTEXT%%", klartext),
+        ("%%ROHTEXT%%", kopiertext),
     ]:
         seite = seite.replace(platzhalter, wert)
 
-    uebrig = [z for z in seite.splitlines() if "%%" in z]
+    uebrig = sorted(set(PLATZHALTER.findall(seite)))
     if uebrig:
         fehler(f"Thema {bid}: unersetzte Platzhalter in der Vorlage: {uebrig[:3]}")
 
@@ -377,7 +403,7 @@ def seite_bauen(dashboard, blocks_nach_id, vorlage, thema_remote="thema"):
     ]:
         seite = seite.replace(platzhalter, wert)
 
-    uebrig = [z for z in seite.splitlines() if "%%" in z]
+    uebrig = sorted(set(PLATZHALTER.findall(seite)))
     if uebrig:
         fehler(f"Dashboard {dashboard['id']}: unersetzte Platzhalter in der Vorlage: {uebrig[:3]}")
 
@@ -416,6 +442,12 @@ def main():
     if len(blocks_nach_id) != len(blocks):
         fehler("blocks.json enthaelt doppelte IDs")
 
+    krumm = [b["id"] for b in blocks if not ID_MUSTER.match(b["id"])]
+    if krumm:
+        fehler(f"unzulaessige Block-IDs {krumm} - erlaubt sind Kleinbuchstaben, "
+               f"Ziffern und einzelne Bindestriche dazwischen. Die ID wird zum "
+               f"Verzeichnisnamen und zum Teil einer Adresse.")
+
     farben_pruefen(dashboards, blocks_nach_id)
 
     # Eine Themenseite bekommt nur, was auch auf einem Dashboard steht - sonst
@@ -423,6 +455,20 @@ def main():
     # stabil halten, damit die Ausgabe zwischen zwei Laeufen vergleichbar ist.
     genutzt = [b["id"] for b in blocks
                if any(b["id"] in d["blocks"] for d in dashboards)]
+
+    # Ein Thema, das aus allen Dashboards genommen wurde, wird nicht mehr
+    # gebaut - seine Seite bleibt aber auf dem Server stehen und friert auf dem
+    # letzten Stand ein. Loeschen kann der Generator nicht (er kennt den Server
+    # nicht), aber schweigen soll er darueber auch nicht.
+    themen_ordner = ZIEL / thema_remote
+    if themen_ordner.is_dir():
+        verwaist = sorted(p.name for p in themen_ordner.iterdir()
+                          if p.is_dir() and p.name not in genutzt)
+        for name in verwaist:
+            print(f"VERWAIST: {thema_remote}/{name}/ wird von keinem Dashboard "
+                  f"mehr genutzt, liegt aber noch auf dem Server. Von Hand "
+                  f"loeschen (FTP) und {themen_ordner / name} entfernen.",
+                  file=sys.stderr)
 
     # Erst alle Seiten rendern, dann schreiben: bei einem Fehler in Dashboard 2
     # soll Dashboard 1 nicht schon halb aktualisiert auf der Platte liegen.

@@ -258,16 +258,36 @@ state/dashboard/switch2.json
         └─→ /thema/switch2/        (nur diese Kachel)
 ```
 
-**Bewusst kein Rückweg:** Die Einzelseite verlinkt weder ein Dashboard noch
-nennt sie eines — sonst wäre der Zweck hinfällig. Aus demselben Grund liegt
-unter `/thema/` eine Sperrseite ohne Themenliste (`thema-index.html`): sie
-verhindert, dass der Webserver das Verzeichnis auflistet und damit alle Themen
-ausstellt.
+**Bewusst kein Rückweg.** Das ist der ganze Zweck, deshalb an vier Stellen
+durchgezogen:
+
+- Die Einzelseite verlinkt **kein** Dashboard und nennt keines — auch nicht im
+  Quelltext-Kommentar. `template-thema.html` und `thema-index.html` landen
+  vollständig beim Empfänger, Kommentare eingeschlossen; Begründungen gehören
+  deshalb in diese README, nicht in die Vorlage.
+- Die Herkunft steht in der Fußzeile als **Text, nicht als Link**: die
+  Startseite der Domain listet alle Dashboards auf, ein Klick von dort wäre
+  genau der Rückweg. Wer die Adresse abtippt, kommt trotzdem hin — eine Bremse,
+  kein Schloss.
+- Unter `/thema/` liegt eine **Sperrseite ohne Themenliste**
+  (`thema-index.html`), sonst listet der Webserver das Verzeichnis auf.
+- Die Einzelseiten tragen **`noindex`**, damit ein weitergeleiteter Link nicht
+  über eine `site:`-Suche die ganze Themenliste sichtbar macht. Die
+  Link-Vorschau in Messengern funktioniert trotzdem, die liest die
+  `og:`-Angaben.
 
 Eine Einzelseite bekommt nur, was auch auf einem Dashboard steht — sonst läge
 eine Seite auf dem Server, auf die nichts verlinkt. Sie trägt kein Baudatum und
 keine Frische-Anzeige, ändert sich also nur, wenn sich ihr Text ändert, und
 verursacht keinen täglichen Leerlauf-Upload.
+
+**Wird ein Thema aus allen Dashboards genommen**, hört der Generator auf, seine
+Seite zu bauen — die vorhandene bleibt aber auf dem Server liegen und friert auf
+dem letzten Text ein. Automatisch gelöscht wird sie bewusst nicht: ein
+Tippfehler in `dashboards.json` würde sonst eine Seite entfernen, deren Link
+vielleicht schon verschickt ist. Stattdessen meldet der Build sie bei jedem Lauf
+auf stderr (`VERWAIST: thema/<id>/ …`); wegräumen dann von Hand, auf dem Server
+**und** unter `dashboard/gebaut/thema/<id>/`.
 
 Der kopierte Text (bei `format: "liste"` je Meldung eine Zeile mit „• " davor):
 
@@ -470,6 +490,14 @@ Alle folgenden Punkte sind echte Fehler, die dieses Projekt schon hatte:
 
 - **`dashboard/gebaut/` ist Ausgabe, keine Quelle.** Handänderungen dort sind
   beim nächsten Lauf weg.
+- **Die Platzhalter-Endkontrolle sucht nach `%%NAME%%`, nicht nach `%%`.** Die
+  frühere Prüfung auf zwei Prozentzeichen schlug an einem Kacheltext mit
+  „5%% Rendite" an und brach den **gesamten** Build ab — nachdem die teure
+  Recherche gelaufen war, und mit einer Fehlermeldung, die auf die Vorlage
+  zeigte.
+- **Block-IDs werden gegen `[a-z0-9-]+` geprüft.** Die ID ist Verzeichnisname,
+  Adressbestandteil, `href`-Inhalt und CSS-Variablenname zugleich; ein `/` oder
+  `..` darin schriebe außerhalb des Zielbaums.
 - **Feldtrenner ist `0x1F`, nicht Tab.** Die Themenliste geht als Zeile mit
   getrennten Feldern an eine Bash-Schleife. Tab ist für Bash Whitespace, also
   fasst `IFS=$'\t' read` zwei aufeinanderfolgende Tabs zu einem zusammen —

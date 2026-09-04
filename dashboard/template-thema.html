@@ -15,10 +15,10 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#eef1f6">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0c11">
-<!-- Einzelseite eines Themas: dieselbe Kachel wie auf dem Dashboard, aber
-     allein und ohne Rueckweg dorthin - das ist der ganze Zweck. Kein
-     apple-touch-icon: diese Seiten sollen nicht auf den Homescreen, sie
-     werden verschickt. -->
+<!-- Diese Seite ist zum Weitergeben gedacht: wer den Link bekommt, soll sie
+     lesen koennen, wer ihn nicht hat, soll sie nicht in einer Suchmaschine
+     finden. Kein apple-touch-icon - sie gehoert nicht auf den Homescreen. -->
+<meta name="robots" content="noindex, follow">
 <style>
   :root{
     color-scheme:light dark;
@@ -152,8 +152,11 @@
     <span class="beschriftung">Text kopieren</span>
   </button>
 
+  <!-- Herkunft als Text, absichtlich kein Link. Warum: README, Abschnitt
+       "Einzelseite je Thema". Hier steht keine Begruendung, weil dieser
+       Quelltext beim Empfaenger landet. -->
   <footer>
-    Erstellt mit Claude · <a href="https://claude.christian-grafe.de">claude.christian-grafe.de</a>
+    Erstellt mit Claude · claude.christian-grafe.de
   </footer>
 </div>
 
