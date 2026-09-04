@@ -8,11 +8,23 @@ gemeinsames Thema nur einen Recherche-Lauf.
 
 Aufruf:  dashboard_build.py
 
-Schreibt dashboard/gebaut/<dashboard-id>/index.html, aber nur wenn sich der
-Inhalt tatsaechlich geaendert hat. Gibt auf stdout die IDs der geaenderten
-Dashboards aus, eine pro Zeile - die ruft der Aufrufer dann hoch. Bei einem
-Fehler (unbekannte Block-ID, fehlende Vorlage) Exit-Code 1 und nichts
-geschrieben.
+Gebaut werden zwei Arten von Seiten:
+
+  dashboard/gebaut/<dashboard-id>/index.html   ein Dashboard mit allen Kacheln
+  dashboard/gebaut/thema/<block-id>/index.html eine einzelne Kachel zum Verschicken
+
+Die Themenseite gibt es, damit man eine Kachel weitergeben kann, ohne das
+ganze Dashboard herzugeben. Sie zieht ihren Text aus demselben State und
+verlinkt bewusst NICHT zurueck - sonst waere der Zweck hinfaellig.
+
+Geschrieben wird nur, wenn sich der Inhalt tatsaechlich geaendert hat. Auf
+stdout kommt je geaenderter Seite eine Zeile mit drei 0x1F-getrennten Feldern:
+
+    <lokales Verzeichnis>\x1f<Verzeichnis auf dem Server>\x1f<Pruef-URL>
+
+Damit kann der Aufrufer beide Seitenarten durch dieselbe Upload-Schleife
+schicken und muss nichts mehr nachschlagen. Bei einem Fehler (unbekannte
+Block-ID, fehlende Vorlage) Exit-Code 1 und nichts geschrieben.
 """
 import datetime
 import html
@@ -28,10 +40,18 @@ CLAUDE = pathlib.Path("/home/gra/claude")
 DASH = CLAUDE / "dashboard"
 BLOCKS_JSON = DASH / "blocks.json"
 DASHBOARDS_JSON = DASH / "dashboards.json"
+SITE_JSON = DASH / "site.json"
 VORLAGE = DASH / "template.html"
+VORLAGE_THEMA = DASH / "template-thema.html"
+THEMA_INDEX = DASH / "thema-index.html"
 ZIEL = DASH / "gebaut"
 STATE_DIR = CLAUDE / "state" / "dashboard"
 ASSETS = DASH / "assets"
+
+# Trennzeichen der stdout-Zeilen. 0x1F und nicht Tab, aus demselben Grund wie
+# in dashboard-update.sh: Tab ist fuer bash Whitespace, ein leeres Feld wuerde
+# stillschweigend alle Folgespalten verschieben.
+TRENN = "\x1f"
 
 # Die Dunkelmodus-Farbe wird aus der Hellfarbe gerechnet, nicht von Hand
 # gepflegt: gleicher Farbton, aber feste Buntheit und eine von drei
@@ -149,7 +169,41 @@ def liste_rendern(text):
     return '<ul class="news">' + "".join(zeilen) + "</ul>"
 
 
-def karte_bauen(block):
+def kachel_titel(block, state):
+    """Ueberschrift der Kachel.
+
+    Kacheln, die sich nach ihrem Inhalt benennen (Top-Story), tragen ihren
+    Titel im State. Solange sie noch nie befuellt wurden, greift der feste
+    Titel aus blocks.json als Platzhalter.
+    """
+    return (state or {}).get("kachel_titel") or block.get("kachel_titel", block["titel"])
+
+
+def rohtext(block, state, url):
+    """Der Kacheltext als Klartext - das, was der Kopierknopf weitergibt.
+
+    Bewusst ohne Auszeichnung: er landet in WhatsApp oder einer Mail, nicht in
+    einem Browser. Die Adresse steht darunter, damit der Empfaenger die Quelle
+    hat und spaeter nachsehen kann.
+    """
+    titel = kachel_titel(block, state)
+    if state is None:
+        return f"{titel}\n\n(noch nicht befuellt)\n\n{url}"
+    kopf = f"{titel} — Stand: {deutsches_datum(state['stand_datum'])}"
+    if state.get("format") == "liste":
+        zeilen = []
+        for zeile in state["quintessenz_text"].split("\n"):
+            zeile = zeile.strip()
+            if not zeile:
+                continue
+            zeilen.append("• " + (zeile[1:].strip() if zeile[:1] in ("*", "~") else zeile))
+        koerper = "\n".join(zeilen)
+    else:
+        koerper = state["quintessenz_text"].strip()
+    return f"{kopf}\n\n{koerper}\n\n{url}"
+
+
+def karte_bauen(block, permalink=None):
     bid = block["id"]
     state = state_lesen(bid)
 
@@ -164,14 +218,19 @@ def karte_bauen(block):
         inhalt = "".join(f'<p class="text">{html.escape(a)}</p>' for a in absaetze)
         stand = f"Stand: {deutsches_datum(state['stand_datum'])}"
 
-    # Kacheln, die sich nach ihrem Inhalt benennen (Top-Story), tragen ihren
-    # Titel im State. Solange sie noch nie befuellt wurden, greift der feste
-    # Titel aus blocks.json als Platzhalter.
-    titel = (state or {}).get("kachel_titel") or block.get("kachel_titel", block["titel"])
+    titel = kachel_titel(block, state)
 
     # Breite Kacheln (z.B. der Nachrichtenueberblick) laufen ueber alle Spalten
     # des Rasters, damit eine lange Liste nicht als schmale Saeule dasteht.
     klassen = "card wide" if block.get("breit") else "card"
+
+    # Weg zur Einzelseite dieses Themas - damit sich eine Kachel weitergeben
+    # laesst, ohne das ganze Dashboard herzugeben.
+    teilen = (
+        f'\n        <a class="teilen" href="{permalink}" '
+        f'title="Einzelseite zum Weitergeben">teilen&nbsp;↗</a>'
+        if permalink else ""
+    )
 
     return f'''    <article class="{klassen}" id="block-{bid}" style="--accent:var(--c-{bid})">
       <div class="card-body">
@@ -186,12 +245,66 @@ def karte_bauen(block):
       </div>
       <div class="card-foot">
         <span class="stand">{stand}</span>
-        <span class="cadence">{takt_text(block)}</span>
+        <span class="cadence">{takt_text(block)}</span>{teilen}
       </div>
     </article>'''
 
 
-def seite_bauen(dashboard, blocks_nach_id, vorlage):
+def themenseite_bauen(block, vorlage, basis_url, thema_remote):
+    """Einzelseite eines Themas: dieselbe Kachel, allein, mit Kopierknopf.
+
+    Kein Rueckweg zum Dashboard und kein Verweis darauf - wer diesen Link
+    bekommt, soll genau diese eine Kachel sehen und sonst nichts.
+    """
+    bid = block["id"]
+    state = state_lesen(bid)
+    url = f"{basis_url}/{thema_remote}/{bid}/"
+
+    if state is None:
+        inhalt = '<p class="text empty">Wird beim nächsten Lauf befüllt.</p>'
+        stand = "Stand: —"
+        beschreibung = f"{block['titel']} — wird beim nächsten Lauf befüllt."
+    else:
+        if state.get("format") == "liste":
+            inhalt = liste_rendern(state["quintessenz_text"])
+        else:
+            absaetze = [a for a in state["quintessenz_text"].split("\n\n") if a.strip()]
+            inhalt = "".join(f'<p class="text">{html.escape(a)}</p>' for a in absaetze)
+        stand = f"Stand: {deutsches_datum(state['stand_datum'])}"
+        # Vorschautext fuer WhatsApp/iMessage: der Anfang des Textes, an einer
+        # Wortgrenze gekappt.
+        roh = " ".join(state["quintessenz_text"].split())
+        beschreibung = roh if len(roh) <= 200 else roh[:200].rsplit(" ", 1)[0] + " …"
+
+    # Klartext fuer die Zwischenablage. Steckt in einem Attribut, deshalb
+    # muessen auch die Zeilenumbrueche kodiert werden - roh wuerden manche
+    # Parser sie zu Leerzeichen glaetten.
+    klartext = html.escape(rohtext(block, state, url), quote=True).replace("\n", "&#10;")
+
+    seite = vorlage
+    for platzhalter, wert in [
+        ("%%TITEL%%", html.escape(kachel_titel(block, state))),
+        ("%%EYEBROW%%", html.escape(block["eyebrow"])),
+        ("%%ICON%%", block["icon"]),
+        ("%%URL%%", html.escape(url)),
+        ("%%BESCHREIBUNG%%", html.escape(beschreibung)),
+        ("%%FARBE_HELL%%", block["farbe"]),
+        ("%%FARBE_DUNKEL%%", farbe_dunkel(block)),
+        ("%%INHALT%%", inhalt),
+        ("%%STAND%%", stand),
+        ("%%TAKT%%", takt_text(block)),
+        ("%%ROHTEXT%%", klartext),
+    ]:
+        seite = seite.replace(platzhalter, wert)
+
+    uebrig = [z for z in seite.splitlines() if "%%" in z]
+    if uebrig:
+        fehler(f"Thema {bid}: unersetzte Platzhalter in der Vorlage: {uebrig[:3]}")
+
+    return seite
+
+
+def seite_bauen(dashboard, blocks_nach_id, vorlage, thema_remote="thema"):
     ids = dashboard["blocks"]
     unbekannt = [i for i in ids if i not in blocks_nach_id]
     if unbekannt:
@@ -246,7 +359,9 @@ def seite_bauen(dashboard, blocks_nach_id, vorlage):
             if vorhanden else ""
         )
 
-    karten = [karte_bauen(b) for b in blocks]
+    # Der teilen-Link zeigt ab dem Wurzelverzeichnis, nicht relativ: die
+    # Dashboards liegen in verschiedenen Ordnern, die Themenseiten in einem.
+    karten = [karte_bauen(b, f'/{thema_remote}/{b["id"]}/') for b in blocks]
 
     seite = vorlage
     for platzhalter, wert in [
@@ -269,14 +384,33 @@ def seite_bauen(dashboard, blocks_nach_id, vorlage):
     return seite
 
 
+def schreiben(ziel, seite, remote, url):
+    """Seite schreiben, wenn sie sich unterscheidet, und dann melden.
+
+    Die Meldung geht an die Upload-Schleife des Aufrufers: lokales
+    Verzeichnis, Zielverzeichnis auf dem Server, Adresse zum Nachpruefen.
+    """
+    ziel.parent.mkdir(parents=True, exist_ok=True)
+    alt = ziel.read_text(encoding="utf-8") if ziel.exists() else None
+    if alt != seite:
+        ziel.write_text(seite, encoding="utf-8")
+        print(TRENN.join([str(ziel.parent), remote, url]))
+
+
 def main():
-    for pfad in (BLOCKS_JSON, DASHBOARDS_JSON, VORLAGE):
+    for pfad in (BLOCKS_JSON, DASHBOARDS_JSON, SITE_JSON, VORLAGE, VORLAGE_THEMA,
+                 THEMA_INDEX):
         if not pfad.exists():
             fehler(f"Datei fehlt: {pfad}")
 
     blocks = json.loads(BLOCKS_JSON.read_text(encoding="utf-8"))
     dashboards = json.loads(DASHBOARDS_JSON.read_text(encoding="utf-8"))
+    site = json.loads(SITE_JSON.read_text(encoding="utf-8"))
     vorlage = VORLAGE.read_text(encoding="utf-8")
+    vorlage_thema = VORLAGE_THEMA.read_text(encoding="utf-8")
+
+    basis_url = site["basis_url"].rstrip("/")
+    thema_remote = site["thema_remote"].strip("/")
 
     blocks_nach_id = {b["id"]: b for b in blocks}
     if len(blocks_nach_id) != len(blocks):
@@ -284,17 +418,35 @@ def main():
 
     farben_pruefen(dashboards, blocks_nach_id)
 
+    # Eine Themenseite bekommt nur, was auch auf einem Dashboard steht - sonst
+    # laege eine Seite auf dem Server, auf die nichts verlinkt. Reihenfolge
+    # stabil halten, damit die Ausgabe zwischen zwei Laeufen vergleichbar ist.
+    genutzt = [b["id"] for b in blocks
+               if any(b["id"] in d["blocks"] for d in dashboards)]
+
     # Erst alle Seiten rendern, dann schreiben: bei einem Fehler in Dashboard 2
     # soll Dashboard 1 nicht schon halb aktualisiert auf der Platte liegen.
-    fertig = [(d, seite_bauen(d, blocks_nach_id, vorlage)) for d in dashboards]
+    fertig = [(d, seite_bauen(d, blocks_nach_id, vorlage, thema_remote))
+              for d in dashboards]
+    fertig_themen = [
+        (bid, themenseite_bauen(blocks_nach_id[bid], vorlage_thema, basis_url,
+                                thema_remote))
+        for bid in genutzt
+    ]
+
+    for bid, seite in fertig_themen:
+        schreiben(ZIEL / thema_remote / bid / "index.html", seite,
+                  f"{thema_remote}/{bid}", f"{basis_url}/{thema_remote}/{bid}/")
+
+    # Sperrseite fuer /thema/ selbst: verhindert, dass Apache dort das
+    # Verzeichnis auflistet und damit die ganze Themenliste ausstellt.
+    schreiben(ZIEL / thema_remote / "index.html",
+              THEMA_INDEX.read_text(encoding="utf-8"),
+              thema_remote, f"{basis_url}/{thema_remote}/")
 
     for dashboard, seite in fertig:
         ziel = ZIEL / dashboard["id"] / "index.html"
-        ziel.parent.mkdir(parents=True, exist_ok=True)
-        alt = ziel.read_text(encoding="utf-8") if ziel.exists() else None
-        if alt != seite:
-            ziel.write_text(seite, encoding="utf-8")
-            print(dashboard["id"])
+        schreiben(ziel, seite, dashboard["remote"], dashboard["url"])
 
         # Statische Assets (Icons fuers iOS-Homescreen) unconditionally mit
         # ins Zielverzeichnis kopieren - referenziert von template.html, aber

@@ -31,7 +31,9 @@ eindeutig zuzuordnen ist.
 |---|---|
 | neues Thema / Takt / Farbe / Rechercheanweisung | `dashboard/blocks.json` |
 | welches Dashboard zeigt was, Reihenfolge, neue Seite | `dashboard/dashboards.json` |
+| Basis-Adresse der Seite, Ordner der Themenseiten | `dashboard/site.json` |
 | Aussehen, CSS, Homescreen-Verhalten | `dashboard/template.html` |
+| Aussehen der Themen-Einzelseite, Kopierknopf | `dashboard/template-thema.html` |
 | wie recherchiert und formatiert wird | `skills/dashboard-update/SKILL.md` |
 | Parsen der Modellausgabe | `bin/dashboard_apply.py` |
 | Rendern der Seiten | `bin/dashboard_build.py` |
@@ -98,7 +100,15 @@ Alle folgenden Punkte sind echte, bezahlte Fehler. Nicht neu entdecken:
   inhaltlich stehendes Thema täglich statt im vorgesehenen Takt.
 - **Ein nie befülltes Thema ist immer fällig**, auch am Wochenende.
 - **Fehlgeschlagener Upload löscht die lokal gebaute Datei**, sonst gilt die
-  Seite als unverändert und der Upload wird nie nachgeholt.
+  Seite als unverändert und der Upload wird nie nachgeholt. Dieselbe Falle
+  greift von Hand: nach einem einzelnen `dashboard_build.py` liegen die Dateien
+  lokal schon auf dem neuen Stand, der nächste reguläre Lauf hält sie für
+  unverändert und lädt nichts hoch. Dann die betroffenen
+  `dashboard/gebaut/*/index.html` löschen.
+- **Die Themen-Einzelseiten dürfen nie auf ein Dashboard zurückverlinken.** Ihr
+  Zweck ist, eine Kachel weiterzugeben, *ohne* das Dashboard herzugeben. Aus
+  demselben Grund liegt unter `/thema/` eine Sperrseite ohne Themenliste — sonst
+  listet der Webserver das Verzeichnis auf und stellt alle Themen aus.
 - **Farben:** dürfen sich zwischen Dashboards wiederholen, nie zwei ähnliche auf
   derselben Seite. Die Puls-Farbe des Live-Badges ist die Farbe des *ersten*
   Themas der Seite.

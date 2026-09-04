@@ -24,6 +24,7 @@ eines Vielfachen.
 - [Ein Durchlauf, Schritt für Schritt](#ein-durchlauf-schritt-für-schritt)
 - [Neues Thema anlegen](#neues-thema-anlegen)
 - [Neues Dashboard anlegen](#neues-dashboard-anlegen)
+- [Einzelseite je Thema](#einzelseite-je-thema)
 - [Darstellungsformate](#darstellungsformate)
 - [Farben](#farben)
 - [Frische-Anzeige](#frische-anzeige)
@@ -107,7 +108,10 @@ läuft und breit über mehrere Ressorts recherchiert.
 |---|---|
 | `dashboard/blocks.json` | **Themen-Registry**: ein Eintrag je Thema (Titel, Icon, Farben, Takt, Rechercheanweisung) |
 | `dashboard/dashboards.json` | **Seiten-Registry**: welches Dashboard zeigt welche Themen, unter welcher Adresse |
+| `dashboard/site.json` | **Adress-Registry**: `basis_url` der Seite, Ordnername der Themenseiten |
 | `dashboard/template.html` | gemeinsame Design-Vorlage mit `%%PLATZHALTER%%` |
+| `dashboard/template-thema.html` | Vorlage der [Einzelseite je Thema](#einzelseite-je-thema) |
+| `dashboard/thema-index.html` | Sperrseite für `/thema/`, wird unverändert kopiert |
 | `dashboard/assets/` | Icons fürs Homescreen (SVG-Quelle + gerenderte PNGs) |
 | `state/dashboard/<id>.json` | Gedächtnis je **Thema** (nicht je Dashboard) |
 | `skills/dashboard-update/SKILL.md` | die Rechercheanweisung an das Modell |
@@ -140,8 +144,12 @@ Skript hat schlecht geparst, aber nie beides gleichzeitig.
    sonst frisst der Aufruf die restlichen Zeilen der Schleife.
 4. **`dashboard_apply.py`** parst die Ausgabe und schreibt den State — oder
    bricht mit Exit-Code 1 ab und schreibt gar nichts.
-5. **`dashboard_build.py`** rendert *alle* Seiten neu und schreibt nur die,
-   deren Inhalt sich unterscheidet. Die IDs dieser Seiten gehen auf stdout.
+5. **`dashboard_build.py`** rendert *alle* Seiten neu — Dashboards **und**
+   [Einzelseiten je Thema](#einzelseite-je-thema) — und schreibt nur die, deren
+   Inhalt sich unterscheidet. Je geschriebener Seite geht eine Zeile auf stdout,
+   mit drei `0x1F`-getrennten Feldern: lokales Verzeichnis, Zielverzeichnis auf
+   dem Server, Adresse zum Nachprüfen. Der Aufrufer muss dadurch nichts
+   nachschlagen und schickt beide Seitenarten durch dieselbe Schleife.
 6. **Upload per FTP**, nur für die gemeldeten Seiten, danach ein
    HTTP-Statuscheck. Schlägt der Upload fehl, wird die lokal gebaute Datei
    gelöscht — sonst gälte die Seite beim nächsten Lauf als unverändert und der
@@ -229,6 +237,56 @@ Was sich bewährt hat:
    hochgeladen; nur noch nicht befüllte Themen kosten einen Lauf.
 3. Die neue Seite irgendwo verlinken, sonst liegt sie unauffindbar auf dem
    Server.
+
+## Einzelseite je Thema
+
+![Eine einzelne Kachel als eigene Seite](docs/thema.png)
+
+Jedes Thema hat zusätzlich eine eigene Seite unter `<basis_url>/thema/<id>/` —
+dieselbe Kachel, allein, plus einen Knopf **„Text kopieren"**. Damit lässt sich
+eine Kachel weitergeben, ohne das ganze Dashboard herzugeben.
+
+Im Fuß jeder Kachel auf dem Dashboard steht dafür ein unauffälliges „teilen ↗".
+Die Adresse hängt am **Thema**, nicht am Dashboard: ein Thema auf drei
+Dashboards hat trotzdem nur eine Einzelseite — und nur einen State, wie gehabt.
+Die Einzelseite ist damit einfach ein dritter Abnehmer derselben Quelle:
+
+```
+state/dashboard/switch2.json
+        ├─→ /dashboard/            (Kachel unter vielen)
+        ├─→ /dashboard-gaming/     (dieselbe Kachel)
+        └─→ /thema/switch2/        (nur diese Kachel)
+```
+
+**Bewusst kein Rückweg:** Die Einzelseite verlinkt weder ein Dashboard noch
+nennt sie eines — sonst wäre der Zweck hinfällig. Aus demselben Grund liegt
+unter `/thema/` eine Sperrseite ohne Themenliste (`thema-index.html`): sie
+verhindert, dass der Webserver das Verzeichnis auflistet und damit alle Themen
+ausstellt.
+
+Eine Einzelseite bekommt nur, was auch auf einem Dashboard steht — sonst läge
+eine Seite auf dem Server, auf die nichts verlinkt. Sie trägt kein Baudatum und
+keine Frische-Anzeige, ändert sich also nur, wenn sich ihr Text ändert, und
+verursacht keinen täglichen Leerlauf-Upload.
+
+Der kopierte Text (bei `format: "liste"` je Meldung eine Zeile mit „• " davor):
+
+```
+Neue Spiele für die Nintendo Switch 2 — Stand: 29. August 2026
+
+<der Kacheltext>
+
+https://example.com/thema/switch2/
+```
+
+Die Basis-Adresse steht in **`dashboard/site.json`** und nicht im Code:
+
+```json
+{ "basis_url": "https://example.com", "thema_remote": "thema" }
+```
+
+`thema_remote` ist zugleich der Ordnername auf dem Server und das erste Segment
+der Adresse — wer die Seiten woanders hinlegen will, ändert nur diesen Wert.
 
 ## Darstellungsformate
 
@@ -421,7 +479,12 @@ Alle folgenden Punkte sind echte Fehler, die dieses Projekt schon hatte:
   friert ein erster Lauf mit Ergebnis `unveraendert` die leere Kachel für
   `cadence_days` ein.
 - **Fehlgeschlagener Upload löscht die lokal gebaute Datei.** Sonst gälte die
-  Seite als unverändert und der Upload würde nie nachgeholt.
+  Seite als unverändert und der Upload würde nie nachgeholt. Aus demselben
+  Grund darf man `dashboard_build.py` nicht von Hand laufen lassen und den
+  Upload dann vergessen: die Dateien liegen danach lokal auf dem neuen Stand
+  und gelten beim nächsten Lauf als unverändert. Wer das getan hat, löscht die
+  betroffenen `index.html` unter `dashboard/gebaut/` — sie werden dann neu
+  gebaut, gemeldet und hochgeladen.
 - **Farben dürfen sich zwischen Dashboards wiederholen**, aber nie zwei
   gleichfarbige Themen auf *derselben* Seite.
 - **Die Puls-Farbe des Live-Badges** ist die Farbe des *ersten* Themas der

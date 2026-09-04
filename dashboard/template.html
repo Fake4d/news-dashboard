@@ -176,9 +176,19 @@
   }
   .stand{
     font-family:var(--mono); color:var(--muted); display:flex; align-items:center; gap:.4rem;
+    margin-right:auto;
   }
   .stand::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--accent); flex:none;}
   .cadence{color:var(--muted); white-space:nowrap;}
+
+  /* Weg zur Einzelseite des Themas: eine Kachel weitergeben, ohne das ganze
+     Dashboard herzugeben. Zurueckhaltend, es ist kein Hauptweg. */
+  .teilen{
+    color:var(--muted); text-decoration:none; white-space:nowrap; font-weight:600;
+    padding:.15rem .45rem; margin:-.15rem -.2rem -.15rem 0; border-radius:6px;
+    transition:color .15s ease, background-color .15s ease;
+  }
+  .teilen:hover{color:var(--accent); background:color-mix(in srgb, var(--accent) 10%, transparent);}
 
   footer{margin-top:2.6rem; padding-top:1.4rem; border-top:1px solid var(--border); color:var(--muted); font-size:.85rem;}
   footer a{color:var(--text); text-decoration:none; font-weight:600;}
@@ -208,6 +218,7 @@
     html{scroll-behavior:auto;}
     .live .dot{animation:none;}
     nav.jump a{transition:none;}
+    .teilen{transition:none;}
     body.app .refresh{transition:none;}
     .refresh.laedt svg{animation:none;}
   }

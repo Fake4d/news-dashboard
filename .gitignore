@@ -11,3 +11,7 @@ dashboard/gebaut/
 logs/
 *.log
 *.lock
+
+# Python-Bytecode
+__pycache__/
+*.pyc

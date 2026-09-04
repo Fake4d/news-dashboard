@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>%%TITEL%% — claude.christian-grafe.de</title>
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="claude.christian-grafe.de">
+<meta property="og:url" content="%%URL%%">
+<meta property="og:title" content="%%TITEL%%">
+<meta property="og:description" content="%%BESCHREIBUNG%%">
+<meta name="twitter:card" content="summary">
+<meta name="description" content="%%BESCHREIBUNG%%">
+<link rel="canonical" href="%%URL%%">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#eef1f6">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0c11">
+<!-- Einzelseite eines Themas: dieselbe Kachel wie auf dem Dashboard, aber
+     allein und ohne Rueckweg dorthin - das ist der ganze Zweck. Kein
+     apple-touch-icon: diese Seiten sollen nicht auf den Homescreen, sie
+     werden verschickt. -->
+<style>
+  :root{
+    color-scheme:light dark;
+    --bg:#eef1f6; --surface:#ffffff; --surface-2:#f7f8fb;
+    --text:#12151c; --muted:#5b6472; --border:#dde2ea;
+    --shadow:0 1px 2px rgba(20,25,40,.05), 0 10px 28px rgba(20,25,40,.07);
+    --mono:ui-monospace,"SF Mono","Cascadia Code",Menlo,Consolas,monospace;
+    --accent:%%FARBE_HELL%%;
+    --c-leicht:#d98324;
+    --dot-grid: rgba(20,25,40,.06);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0a0c11; --surface:#12151d; --surface-2:#161a24;
+      --text:#e8eaf0; --muted:#8e97a8; --border:#232838;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 14px 34px rgba(0,0,0,.4);
+      --accent:%%FARBE_DUNKEL%%;
+      --c-leicht:#f0b45c;
+      --dot-grid: rgba(255,255,255,.055);
+    }
+  }
+  *{box-sizing:border-box}
+  html{background:var(--bg);}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:
+      radial-gradient(var(--dot-grid) 1px, transparent 1px);
+    background-size:22px 22px;
+    background-color:var(--bg);
+    color:var(--text); line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:640px; margin:0 auto; padding:clamp(1.5rem,5vw,3.5rem) 1.25rem 3rem;}
+
+  .card{
+    position:relative; overflow:hidden;
+    background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    box-shadow:var(--shadow); display:flex; flex-direction:column;
+  }
+  .card::before{
+    content:""; position:absolute; top:0; left:0; right:0; height:3px;
+    background:var(--accent);
+  }
+  .card-body{padding:1.3rem 1.35rem 1.1rem;}
+  .card-head{display:flex; align-items:center; gap:.75rem; margin-bottom:.9rem;}
+  .icon{
+    flex:none; width:2.3rem; height:2.3rem; border-radius:9px; font-size:1.15rem;
+    display:grid; place-items:center;
+    background:color-mix(in srgb, var(--accent) 16%, var(--surface));
+  }
+  .card-head .titles{min-width:0;}
+  .card-eyebrow{
+    font-size:.68rem; letter-spacing:.09em; text-transform:uppercase; font-weight:700;
+    color:var(--accent); margin:0 0 .15rem;
+  }
+  .card-title{font-size:1.15rem; font-weight:650; margin:0; letter-spacing:-.01em;}
+  .text{margin:0; color:var(--text); font-size:.97rem;}
+  .text + .text{margin-top:.85rem;}
+  .text.empty{color:var(--muted); font-style:italic;}
+
+  .news{list-style:none; margin:0; padding:0;}
+  .news li{position:relative; padding-left:1.15rem; font-size:.97rem;}
+  .news li + li{margin-top:.55rem; padding-top:.55rem; border-top:1px solid var(--border);}
+  .news li::before{
+    content:""; position:absolute; left:0; top:.6em;
+    width:6px; height:6px; border-radius:2px; background:var(--accent);
+  }
+  .news li + li::before{top:calc(.55rem + .6em);}
+  .news li.leicht{color:var(--muted);}
+  .news li.leicht::before{background:var(--c-leicht); border-radius:50%;}
+
+  .card-foot{
+    margin-top:auto; display:flex; align-items:center; justify-content:space-between;
+    gap:.75rem; padding:.7rem 1.35rem; border-top:1px solid var(--border);
+    background:var(--surface-2); font-size:.74rem;
+  }
+  .stand{
+    font-family:var(--mono); color:var(--muted); display:flex; align-items:center; gap:.4rem;
+  }
+  .stand::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--accent); flex:none;}
+  .cadence{color:var(--muted); white-space:nowrap;}
+
+  /* Kopierknopf: der eigentliche Grund fuer diese Seite - den Text
+     weiterschicken, ohne ihn abzutippen. */
+  .kopieren{
+    display:inline-flex; align-items:center; gap:.5rem;
+    margin-top:1rem; padding:.6rem 1rem; border-radius:10px;
+    font:inherit; font-size:.88rem; font-weight:600; color:var(--text);
+    background:var(--surface); border:1px solid var(--border);
+    box-shadow:var(--shadow); cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    transition:border-color .15s ease, transform .12s ease;
+  }
+  .kopieren:hover{border-color:var(--accent);}
+  .kopieren:active{transform:scale(.98);}
+  .kopieren svg{width:1.05rem; height:1.05rem; display:block; flex:none;}
+  .kopieren.fertig{border-color:var(--accent); color:var(--accent);}
+
+  footer{margin-top:2.2rem; padding-top:1.4rem; border-top:1px solid var(--border); color:var(--muted); font-size:.85rem;}
+  footer a{color:var(--text); text-decoration:none; font-weight:600;}
+
+  @media (prefers-reduced-motion: reduce){
+    .kopieren{transition:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <article class="card">
+    <div class="card-body">
+      <div class="card-head">
+        <span class="icon">%%ICON%%</span>
+        <div class="titles">
+          <p class="card-eyebrow">%%EYEBROW%%</p>
+          <p class="card-title">%%TITEL%%</p>
+        </div>
+      </div>
+      %%INHALT%%
+    </div>
+    <div class="card-foot">
+      <span class="stand">%%STAND%%</span>
+      <span class="cadence">%%TAKT%%</span>
+    </div>
+  </article>
+
+  <button class="kopieren" type="button" data-text="%%ROHTEXT%%">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="9" y="9" width="12" height="12" rx="2"/>
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+    </svg>
+    <span class="beschriftung">Text kopieren</span>
+  </button>
+
+  <footer>
+    Erstellt mit Claude · <a href="https://claude.christian-grafe.de">claude.christian-grafe.de</a>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var knopf = document.querySelector('.kopieren');
+  if(!knopf) return;
+  var label = knopf.querySelector('.beschriftung');
+  var standard = label.textContent, timer = null;
+
+  function melden(wort){
+    label.textContent = wort;
+    knopf.classList.add('fertig');
+    clearTimeout(timer);
+    timer = setTimeout(function(){
+      label.textContent = standard;
+      knopf.classList.remove('fertig');
+    }, 2000);
+  }
+
+  // Rueckfall fuer aeltere Safari-Versionen und alles, was nicht ueber HTTPS
+  // laeuft: dort gibt es navigator.clipboard nicht.
+  function altKopieren(text){
+    var f = document.createElement('textarea');
+    f.value = text;
+    f.setAttribute('readonly', '');
+    f.style.position = 'fixed';
+    f.style.top = '-1000px';
+    document.body.appendChild(f);
+    f.select();
+    f.setSelectionRange(0, text.length);
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch(e){ ok = false; }
+    document.body.removeChild(f);
+    return ok;
+  }
+
+  knopf.addEventListener('click', function(){
+    var text = knopf.dataset.text || '';
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){
+        melden('Kopiert ✓');
+      }, function(){
+        melden(altKopieren(text) ? 'Kopiert ✓' : 'Ging nicht');
+      });
+    } else {
+      melden(altKopieren(text) ? 'Kopiert ✓' : 'Ging nicht');
+    }
+  });
+})();
+</script>
+</body>
+</html>

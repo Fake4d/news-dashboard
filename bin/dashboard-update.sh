@@ -238,36 +238,33 @@ fi
 BASIS="ftp://$FTP_USER:$FTP_PASS@$FTP_HOST:$FTP_PORT/$FTP_ROOT"
 
 FEHLER=0
-while read -r DID; do
-    [ -z "$DID" ] && continue
+# Der Generator meldet je geaenderter Seite drei 0x1F-getrennte Felder:
+# lokales Verzeichnis, Zielverzeichnis auf dem Server, Adresse zum Nachpruefen.
+# Dashboards und einzelne Themenseiten laufen dadurch durch dieselbe Schleife,
+# hier muss nichts mehr nachgeschlagen werden. 0x1F statt Tab, weil bash Tab
+# als Whitespace behandelt (siehe die Themenschleife weiter oben).
+while IFS=$'\x1f' read -r LOKAL REMOTE URL; do
+    [ -z "$LOKAL" ] && continue
 
-    ZIEL=$(python3 -c "
-import json,sys
-ds=json.load(open('$DASH/dashboards.json', encoding='utf-8'))
-d=[x for x in ds if x['id']==sys.argv[1]][0]
-print(d['remote'], d['url'])
-" "$DID")
-    REMOTE=${ZIEL% *}
-    URL=${ZIEL#* }
-
-    log "-- Upload Dashboard $DID -> $REMOTE/ --"
+    log "-- Upload $REMOTE/ --"
 
     # Statische Icon-Assets huckepack mitschicken, solange die Seite ohnehin
     # hochgeladen wird - kein eigener Aenderungs-Check noetig, die Dateien
     # sind klein und das haelt ein fehlendes Icon nie dauerhaft kaputt.
-    for ASSET in "$DASH"/gebaut/"$DID"/*.png; do
+    # Themenseiten haben keine, dann laeuft die Schleife leer durch.
+    for ASSET in "$LOKAL"/*.png; do
         [ -e "$ASSET" ] || continue
         curl -s --ftp-create-dirs -T "$ASSET" "$BASIS/$REMOTE/$(basename "$ASSET")" \
             || log "FEHLER: Upload $REMOTE/$(basename "$ASSET") fehlgeschlagen"
     done
 
-    if ! curl -s --ftp-create-dirs -T "$DASH/gebaut/$DID/index.html" "$BASIS/$REMOTE/index.html"; then
+    if ! curl -s --ftp-create-dirs -T "$LOKAL/index.html" "$BASIS/$REMOTE/index.html"; then
         log "FEHLER: Upload $REMOTE/index.html fehlgeschlagen"
         # Lokale gebaute Datei verwerfen: sie ist schon auf dem neuen Stand,
         # sonst gaelte die Seite beim naechsten Lauf als unveraendert und der
         # verpasste Upload wuerde nie nachgeholt. Ohne Datei baut und meldet
         # dashboard_build.py sie beim naechsten Lauf von selbst wieder.
-        rm -f "$DASH/gebaut/$DID/index.html"
+        rm -f "$LOKAL/index.html"
         FEHLER=1
         continue
     fi
@@ -277,7 +274,7 @@ print(d['remote'], d['url'])
         log "hochgeladen und geprueft: $URL (200)"
     else
         log "FEHLER: $URL liefert HTTP $CODE"
-        rm -f "$DASH/gebaut/$DID/index.html"
+        rm -f "$LOKAL/index.html"
         FEHLER=1
     fi
 done <<< "$GEBAUT"
