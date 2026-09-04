@@ -60,7 +60,7 @@ Der Ablauf pro Thema:
 
 ```
         ┌──────────────────────────────────────────────┐
-        │  Cron, täglich 7:10                          │
+        │  Cron, täglich 6:10                          │
         └───────────────────┬──────────────────────────┘
                             ▼
                 ist das Thema fällig?          ← kostet nichts,
@@ -383,7 +383,7 @@ Maßstab ist **`stand_datum`** (echte inhaltliche Änderung), *nicht*
 Ist heute noch nichts gelaufen, zeigt das Badge statt einer mageren „0" das
 jüngste vorhandene Datum: „zuletzt 30. August".
 
-**Mitternachts-Falle:** Die Seite wird um 7:10 gebaut und steht dann 24 h — ab
+**Mitternachts-Falle:** Die Seite wird um 6:10 gebaut und steht dann 24 h — ab
 0:00 wäre „N heute neu" gelogen. Der Generator gibt deshalb `data-stand`
 (Baudatum) und `data-alt` („4 neu am 31. August 2026") mit; ein paar Zeilen
 Skript in der Vorlage tauschen den Text aus, sobald das Baudatum nicht mehr
@@ -400,10 +400,17 @@ Seite bleibt beim Zurückwechseln im Speicher stehen. Das Skript am Ende von
 - **Selbst-Neuladen beim Zurückkehren**, wenn mindestens 15 min weg **und**
   (die angezeigte Fassung älter als die jüngste Cron-Ausgabe **oder** 6 h+ weg).
 
-Die Cron-Grenze steckt in `letzteAusgabe()`: Cron startet 7:10, als fertig gilt
-7:45. Diese Bedingung ersetzt bewusst eine reine „neuer Tag"-Regel — die
-verpasst den Fall „um 6:00 kurz reingeschaut, um 9:00 wieder geöffnet", wo seit
-7:10 längst eine neue Ausgabe steht.
+Die Cron-Grenze steckt in `letzteAusgabe()`: Cron startet 6:10, als fertig gilt
+6:45 (gemessene Laufzeiten: 7–12 min). Diese Bedingung ersetzt bewusst eine
+reine „neuer Tag"-Regel — die verpasst den Fall „um 6:00 kurz reingeschaut, um
+9:00 wieder geöffnet", wo seit 6:10 längst eine neue Ausgabe steht.
+
+**Die Uhrzeit steht an drei Stellen: `crontab`, diese README und
+`template.html`. Wird der Cron verschoben, müssen alle drei mit.** Steht die
+Zahl im Skript zu spät, verzögert sich morgens ein fälliges Neuladen und später
+am Tag lädt die App einmal umsonst — harmlos. Steht sie zu **früh**, hält die
+App eine veraltete Seite für aktuell und lädt erst nach der 6-Stunden-Regel
+nach. Das ist die gefährliche Richtung, deshalb den Puffer großzügig lassen.
 
 Die Icons liegen in `dashboard/assets/`. Quelle ist das SVG, die PNGs entstehen
 daraus mit `rsvg-convert`:
@@ -444,10 +451,10 @@ bin/dashboard-update.sh -n
 bin/dashboard-update.sh
 ```
 
-Dann per Cron, hier täglich um 7:10:
+Dann per Cron, hier täglich um 6:10:
 
 ```cron
-10 7 * * * /pfad/zu/news-dashboard/bin/dashboard-update.sh
+10 6 * * * /pfad/zu/news-dashboard/bin/dashboard-update.sh
 ```
 
 > **Hinweis zu den Pfaden:** Die Skripte enthalten den absoluten Pfad

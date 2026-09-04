@@ -293,10 +293,13 @@
   var MIN = 60000, geladen = Date.now(), weg = 0;
 
   // Zeitpunkt der juengsten fertig hochgeladenen Cron-Ausgabe. Der Cron
-  // startet 7:10; bis 7:45 sind auch mehrere faellige Themen durch.
+  // startet 6:10; bis 6:45 sind auch mehrere faellige Themen durch (gemessen
+  // 7-12 min). Diese Zahl MUSS mit der Cron-Zeit mitwandern: liegt sie zu
+  // frueh, haelt die App eine alte Seite fuer aktuell und laedt erst nach der
+  // 6-Stunden-Regel nach.
   function letzteAusgabe(){
     var d = new Date();
-    d.setHours(7, 45, 0, 0);
+    d.setHours(6, 45, 0, 0);
     if(Date.now() < d.getTime()) d.setDate(d.getDate() - 1);
     return d.getTime();
   }
@@ -308,7 +311,7 @@
     // Kurzes Wegtippen loest nie ein Neuladen aus.
     if(abwesend < 15 * MIN) return;
     // Neu laden, wenn die angezeigte Fassung aelter ist als die juengste
-    // Cron-Ausgabe - deckt auch den Fall "morgens vor 7:10 kurz reingeschaut,
+    // Cron-Ausgabe - deckt auch den Fall "morgens vor 6:10 kurz reingeschaut,
     // um 9 wieder geoeffnet" ab, den eine reine Tageswechsel-Regel verpasst.
     // Die 6-Stunden-Regel bleibt als Sicherheitsnetz daneben stehen.
     if(geladen < letzteAusgabe() || abwesend >= 6 * 60 * MIN) neuLaden();

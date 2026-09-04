@@ -120,9 +120,13 @@ Alle folgenden Punkte sind echte, bezahlte Fehler. Nicht neu entdecken:
   allein machen es *schlechter*, wenn die Töne zu dicht beieinander liegen
   (gemessen: schlechtestes Paar 0.016 statt 0.041). `dashboard_farben.py
   vorschlagen` macht beides zusammen.
-- **Cron-Uhrzeit steht an zwei Stellen.** Wird der Cron verschoben, muss
-  `letzteAusgabe()` in `dashboard/template.html` mitgezogen werden — sonst lädt
-  die Homescreen-App zur falschen Zeit nach.
+- **Cron-Uhrzeit steht an drei Stellen:** `crontab`, README und
+  `letzteAusgabe()` in `dashboard/template.html`. Wird der Cron verschoben,
+  müssen alle drei mit — sonst lädt die Homescreen-App zur falschen Zeit nach.
+  Genau das ist passiert: der Cron ging von 7:10 auf 6:10, die 7:45 im Skript
+  blieb stehen. Zu **spät** ist harmlos (ein verzögertes und ein überflüssiges
+  Neuladen), zu **früh** ist der gefährliche Fall — dann hält die App eine
+  veraltete Seite für aktuell. Puffer also lieber großzügig.
 - **„Heute neu" hängt am Baudatum.** Die Seite steht 24 h; ab Mitternacht wäre
   die Aussage falsch. Deshalb `data-stand`/`data-alt` und der Umschalter im
   Skript — nicht wegoptimieren.
