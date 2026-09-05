@@ -19,7 +19,8 @@ Der aufrufende Prompt nennt Block-ID, Thema, eine Rechercheanweisung und den
 bisherigen Stand (Datum, Kernaussagen, Text). Dieser Skill liest und schreibt
 selbst keine Dateien — das Gedächtnis kommt komplett über den Prompt herein und
 geht über die Ausgabe wieder raus. Ein mechanischer Schritt außerhalb dieses
-Skills übernimmt Ausgabe und schreibt sie in State und HTML.
+Skills übernimmt die Ausgabe und schreibt sie in den State; die HTML-Seiten
+werden danach getrennt daraus gebaut.
 
 Manche Blöcke (aktuell: `ki`) haben zusätzlich einen **Zusatzabsatz-Hinweis**
 im Prompt — dann kommt ein zweiter, separat recherchierter Absatz dazu (siehe
@@ -129,7 +130,7 @@ Regeln für die einzelne Zeile:
   3. Wirtschaft
   4. Wissenschaft/Technik
   5. Panorama/Kurioses (Kandidaten für die `~`-Zeilen)
-  6. Sport oder Kultur (je nachdem, was an dem Tag ergiebiger wirkt)
+  6. Kultur oder Gesellschaft (je nachdem, was an dem Tag ergiebiger wirkt)
 
   Mit sechs Suchen ist die Recherche fertig — nicht bei dünnem Ergebnis in
   einem Punkt eine siebte oder achte Suche nachschieben, sondern mit dem
@@ -137,11 +138,14 @@ Regeln für die einzelne Zeile:
   eine zweite Suche, auch nicht mit anderem Wortlaut. Höchstens eine Zeile je
   Ereignis.
 - Die leichten Meldungen (`~`) müssen wirklich leicht sein: kurios, skurril,
-  komisch, aus Sport/Kultur/Panorama — etwas, das man am Frühstückstisch
+  komisch, aus Kultur/Panorama — etwas, das man am Frühstückstisch
   weitererzählt. Eine tröstliche Einzelheit aus einer Katastrophe ist **keine**
   leichte Meldung, und ein Ereignis, das oben schon als `*` steht, darf unten
   nicht noch einmal auftauchen. Unterhaltsam ja, aber nicht erfunden und nicht
-  auf Kosten identifizierbarer Privatpersonen.
+  auf Kosten identifizierbarer Privatpersonen. Schließt die Rechercheanweisung
+  ein Ressort aus (beim Nachrichtenüberblick: Sport, auch als leichte
+  Meldung), gilt das auch hier — die Anweisung im Prompt hat Vorrang vor
+  dieser Liste.
 - Zeilen aus dem bisherigen Stand (steht im Prompt) nicht einfach wiederholen —
   nur wenn es eine echte Weiterentwicklung gibt, und dann mit dem neuen Stand.
 - **`STATUS: unveraendert` gibt es im Listenformat nicht.** Ein Tagesüberblick

@@ -226,21 +226,26 @@ def rohtext(block, state, url):
     return f"{kopf}\n\n{klartext(state)}\n\n{url}"
 
 
-def karte_bauen(block, permalink=None):
-    bid = block["id"]
-    state = state_lesen(bid)
+def inhalt_rendern(state):
+    """Kachelinhalt und Stand-Zeile als HTML - fuer Dashboard und Themenseite.
 
+    Eine Stelle fuer beide Seitenarten, damit Liste und Fliesstext nicht an
+    zwei Orten leicht verschieden gerendert werden.
+    """
     if state is None:
-        inhalt = '<p class="text empty">Wird beim nächsten Lauf befüllt.</p>'
-        stand = "Stand: —"
-    elif state.get("format") == "liste":
+        return '<p class="text empty">Wird beim nächsten Lauf befüllt.</p>', "Stand: —"
+    if state.get("format") == "liste":
         inhalt = liste_rendern(state["quintessenz_text"])
-        stand = f"Stand: {deutsches_datum(state['stand_datum'])}"
     else:
         absaetze = [a for a in state["quintessenz_text"].split("\n\n") if a.strip()]
         inhalt = "".join(f'<p class="text">{html.escape(a)}</p>' for a in absaetze)
-        stand = f"Stand: {deutsches_datum(state['stand_datum'])}"
+    return inhalt, f"Stand: {deutsches_datum(state['stand_datum'])}"
 
+
+def karte_bauen(block, permalink=None):
+    bid = block["id"]
+    state = state_lesen(bid)
+    inhalt, stand = inhalt_rendern(state)
     titel = kachel_titel(block, state)
 
     # Breite Kacheln (z.B. der Nachrichtenueberblick) laufen ueber alle Spalten
@@ -284,18 +289,11 @@ def themenseite_bauen(block, vorlage, basis_url, thema_remote):
     url = f"{basis_url}/{thema_remote}/{bid}/"
 
     titel = kachel_titel(block, state)
+    inhalt, stand = inhalt_rendern(state)
 
     if state is None:
-        inhalt = '<p class="text empty">Wird beim nächsten Lauf befüllt.</p>'
-        stand = "Stand: —"
         beschreibung = f"{titel} — wird beim nächsten Lauf befüllt."
     else:
-        if state.get("format") == "liste":
-            inhalt = liste_rendern(state["quintessenz_text"])
-        else:
-            absaetze = [a for a in state["quintessenz_text"].split("\n\n") if a.strip()]
-            inhalt = "".join(f'<p class="text">{html.escape(a)}</p>' for a in absaetze)
-        stand = f"Stand: {deutsches_datum(state['stand_datum'])}"
         # Vorschautext fuer WhatsApp/iMessage: der Anfang des Textes, an einer
         # Wortgrenze gekappt. Ueber klartext(), sonst stuenden die Listenmarker
         # des Skills in der Vorschau - genau dort, wo der Link gelesen wird.

@@ -220,7 +220,7 @@ Was sich bewährt hat:
 | Feld | Wirkung |
 |---|---|
 | `kachel_titel` | kürzerer Name auf der Kachel, wenn `titel` als Recherche-Thema länger sein muss |
-| `weekday_only` | Sa/So überspringen (z. B. Aktienmarkt) |
+| `weekday_only` | Sa/So überspringen (z. B. Aktienmarkt); im Log steht dann „nicht faellig, nur werktags" |
 | `zusatzabsatz_hinweis` | zweiter, **getrennt** recherchierter Absatz (siehe `ki`-Block) |
 | `format: "liste"` | Meldungsliste statt Fließtext (siehe unten) |
 | `breit: true` | Kachel über alle Rasterspalten, Liste zweispaltig |
@@ -421,9 +421,12 @@ Seite bleibt beim Zurückwechseln im Speicher stehen. Das Skript am Ende von
   (die angezeigte Fassung älter als die jüngste Cron-Ausgabe **oder** 6 h+ weg).
 
 Die Cron-Grenze steckt in `letzteAusgabe()`: Cron startet 6:10, als fertig gilt
-6:45 (gemessene Laufzeiten: 7–12 min). Diese Bedingung ersetzt bewusst eine
-reine „neuer Tag"-Regel — die verpasst den Fall „um 6:00 kurz reingeschaut, um
-9:00 wieder geöffnet", wo seit 6:10 längst eine neue Ausgabe steht.
+7:15. Die Laufzeit hängt an der Zahl der fälligen Themen (gemessen 1–3 min je
+Thema: 10 Themen brauchten 18 min, wenn alle Wochenthemen zugleich fällig sind,
+sind es 15 und mehr). Die frühere Grenze 6:45 aus „7–12 min" war zu knapp
+gerechnet. Diese Bedingung ersetzt bewusst eine reine „neuer Tag"-Regel — die
+verpasst den Fall „um 6:00 kurz reingeschaut, um 9:00 wieder geöffnet", wo seit
+6:10 längst eine neue Ausgabe steht.
 
 **Die Uhrzeit steht an drei Stellen: `crontab`, diese README und
 `template.html`. Wird der Cron verschoben, müssen alle drei mit.** Steht die
@@ -439,10 +442,14 @@ daraus mit `rsvg-convert`:
 cd dashboard/assets
 rsvg-convert -w 180 -h 180 apple-touch-icon.svg -o apple-touch-icon.png
 rsvg-convert -w 512 -h 512 apple-touch-icon.svg -o icon-512.png
+rsvg-convert -w 32 -h 32 apple-touch-icon.svg -o favicon-32.png
 ```
 
-`dashboard_build.py` kopiert die PNGs in jedes Bauverzeichnis,
-`dashboard-update.sh` lädt sie huckepack mit hoch.
+`dashboard_build.py` kopiert alle PNGs des Ordners in jedes Bauverzeichnis,
+`dashboard-update.sh` lädt sie huckepack mit hoch. Was dort liegt, muss die
+Vorlage auch referenzieren — `favicon-32.png` lag eine Zeit lang unreferenziert
+auf dem Server (Safari braucht genau diese Datei, mit dem SVG-Emoji-Favicon
+kann es nichts anfangen).
 
 ## Einrichtung
 

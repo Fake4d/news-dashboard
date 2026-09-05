@@ -16,6 +16,7 @@
      das SVG-Favicon oben und will eine echte PNG-Datei, die es selbst rund
      maskiert - deshalb randlos gestaltet, kein eigenes Abrunden noetig. -->
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -293,13 +294,15 @@
   var MIN = 60000, geladen = Date.now(), weg = 0;
 
   // Zeitpunkt der juengsten fertig hochgeladenen Cron-Ausgabe. Der Cron
-  // startet 6:10; bis 6:45 sind auch mehrere faellige Themen durch (gemessen
-  // 7-12 min). Diese Zahl MUSS mit der Cron-Zeit mitwandern: liegt sie zu
-  // frueh, haelt die App eine alte Seite fuer aktuell und laedt erst nach der
+  // startet 6:10; die Laufzeit haengt an der Zahl der faelligen Themen
+  // (gemessen ~1-3 min je Thema, 10 Themen = 18 min, sonntags sind es 15,
+  // im schlimmsten Fall alle 25). 7:15 deckt auch den vollen Lauf ab.
+  // Diese Zahl MUSS mit der Cron-Zeit mitwandern: liegt sie zu frueh, haelt
+  // die App eine alte Seite fuer aktuell und laedt erst nach der
   // 6-Stunden-Regel nach.
   function letzteAusgabe(){
     var d = new Date();
-    d.setHours(6, 45, 0, 0);
+    d.setHours(7, 15, 0, 0);
     if(Date.now() < d.getTime()) d.setDate(d.getDate() - 1);
     return d.getTime();
   }

@@ -64,7 +64,7 @@ fi
 
 # -------------------------------------------------- Faellige Themen ermitteln --
 # Reine Lese-/Vergleichslogik, kostet nichts. Eine Zeile pro Thema, Felder:
-# id  titel  hinweis  zusatzhinweis  format  titel_dynamisch  cadence_days  faellig(0/1)  stand  letzter_check  kernaussagen(||)  text
+# id  titel  hinweis  zusatzhinweis  format  titel_dynamisch  cadence_days  faellig(0/1/wochenende)  stand  letzter_check  kernaussagen(||)  text
 #
 # Trennzeichen ist ASCII 0x1F (Unit Separator), NICHT Tab: Tab ist fuer bash ein
 # Whitespace-Trennzeichen, deshalb wuerde `IFS=$'\t' read` zwei aufeinander-
@@ -103,16 +103,19 @@ for b in blocks:
     # sonst liefe ein Thema mit lange unveraendertem Inhalt taeglich statt im
     # vorgesehenen Takt.
     check = datetime.date.fromisoformat(state.get("letzter_check", state["stand_datum"]))
-    faellig = (heute - check).days >= b["cadence_days"]
+    # faellig ist "1", "0" oder "wochenende" - letzteres nur, damit das Log den
+    # Grund nennt: ein werktags-taegliches Thema, das samstags als "nicht
+    # faellig (Takt 1d)" dasteht, sieht sonst wie ein Fehler aus.
+    faellig = "1" if (heute - check).days >= b["cadence_days"] else "0"
     if b.get("weekday_only") and heute.isoweekday() >= 6:
-        faellig = False
+        faellig = "wochenende"
     # Ein noch nie befuelltes Thema (leere Kachel auf der Seite) ist immer
     # faellig, auch am Wochenende - sonst friert ein erster Lauf, der
     # 'unveraendert' meldet, die leere Kachel fuer cadence_days Tage ein.
     if not state.get("quintessenz_text"):
-        faellig = True
+        faellig = "1"
     if erzwingen and bid == force_id:
-        faellig = True
+        faellig = "1"
 
     def clean(s):
         # Zeilenumbrueche wuerden die Zeilenstruktur sprengen, 0x1F das Feldraster.
@@ -124,7 +127,7 @@ for b in blocks:
         clean(b.get("zusatzabsatz_hinweis", "")),
         b.get("format", "text"),
         "1" if b.get("titel_dynamisch") else "0",
-        str(b["cadence_days"]), "1" if faellig else "0",
+        str(b["cadence_days"]), faellig,
         state["stand_datum"], check.isoformat(), clean(kern), clean(state.get("quintessenz_text", "")),
     ]
     print("\x1f".join(zeile))
@@ -145,6 +148,10 @@ while IFS=$'\x1f' read -r ID TITEL HINWEIS ZUSATZ FORMAT TITELDYN CADENCE FAELLI
         continue
     fi
 
+    if [ "$FAELLIG" = "wochenende" ]; then
+        log "Thema $ID: nicht faellig, nur werktags (Stand $STAND, letzter Check $CHECK)"
+        continue
+    fi
     if [ "$FAELLIG" != "1" ]; then
         log "Thema $ID: nicht faellig (Stand $STAND, letzter Check $CHECK, Takt ${CADENCE}d)"
         continue

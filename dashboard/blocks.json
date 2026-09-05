@@ -172,8 +172,21 @@
     "farbe": "#1c8b7f",
     "cadence_days": 7,
     "weekday_only": false,
-    "recherche_hinweis": "Aktuelles aus der Gemeinde Eichenau (PLZ 82223, Landkreis Fürstenfeldbruck): Beschlüsse des Gemeinderats, Bauprojekte und Ortsentwicklung, Baustellen und Sperrungen im Ort, die S-Bahn-Linie S4 mit Halt Eichenau samt Ersatzverkehr, Veranstaltungen und Gemeindethemen von Bedeutung. Auch das direkte Umland (Puchheim, Fürstenfeldbruck, Olching, Landkreis Fürstenfeldbruck) einbeziehen, soweit es Eichenau spürbar betrifft. Wichtig: Der Ort ist klein, dünne Nachrichtenlage ist normal — dann lieber unveraendert melden als Belangloses aufzublähen.",
+    "recherche_hinweis": "Aktuelles aus der Gemeinde Eichenau (PLZ 82223, Landkreis Fürstenfeldbruck): Beschlüsse des Gemeinderats, Bauprojekte und Ortsentwicklung, Baustellen und Sperrungen im Ort, Veranstaltungen und Gemeindethemen von Bedeutung. Auch das direkte Umland (Puchheim, Fürstenfeldbruck, Olching, Landkreis Fürstenfeldbruck) einbeziehen, soweit es Eichenau spürbar betrifft. Die S-Bahn-Linie S4 hat eine eigene Kachel ('s4-sbahn') — hier nicht mitbehandeln. Wichtig: Der Ort ist klein, dünne Nachrichtenlage ist normal — dann lieber unveraendert melden als Belangloses aufzublähen.",
     "dunkel_stufe": "hell"
+  },
+  {
+    "id": "s4-sbahn",
+    "titel": "S-Bahn-Linie S4 (MVV)",
+    "kachel_titel": "S4 S-Bahn",
+    "eyebrow": "MVV",
+    "nav": "S4",
+    "icon": "🚆",
+    "farbe": "#44b2ab",
+    "cadence_days": 4,
+    "weekday_only": false,
+    "recherche_hinweis": "Alles Wichtige rund um die MVV-S-Bahn-Linie S4 zwischen Geltendorf und München (mit besonderem Fokus auf den Westast Geltendorf–Buchenau–Fürstenfeldbruck–Eichenau–Puchheim–Pasing, da hier der Alltag von Pendlern aus Eichenau hängt): aktuelle Baustellen, Streckensperrungen und Schienenersatzverkehr (Zeitraum, betroffener Abschnitt, Taktänderung), größere Störungen oder Verspätungshäufungen, Fahrplanwechsel und Taktänderungen. Besonders wichtig: der Fortschritt beim viergleisigen Ausbau Pasing–Fürstenfeldbruck samt neuem Halt Emmering — Baufortschritt, aktuelle Zeitpläne, Verzögerungen, Fertigstellungstermin. Allgemeine Gemeindethemen aus Eichenau gehören in die Kachel 'eichenau', hier nur die Bahnlinie selbst. Dünne Nachrichtenlage zwischen Baustellenphasen ist normal — dann lieber unveraendert melden als Belangloses aufzublähen.",
+    "dunkel_stufe": "tief"
   },
   {
     "id": "hackernews",

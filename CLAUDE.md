@@ -135,7 +135,17 @@ Alle folgenden Punkte sind echte, bezahlte Fehler. Nicht neu entdecken:
   Genau das ist passiert: der Cron ging von 7:10 auf 6:10, die 7:45 im Skript
   blieb stehen. Zu **spät** ist harmlos (ein verzögertes und ein überflüssiges
   Neuladen), zu **früh** ist der gefährliche Fall — dann hält die App eine
-  veraltete Seite für aktuell. Puffer also lieber großzügig.
+  veraltete Seite für aktuell. Puffer also lieber großzügig — und die Laufzeit
+  wächst mit der Zahl der fälligen Themen (1–3 min je Thema), nicht mit der
+  Uhr: 6:45 war für 10 Themen bequem und für 15 knapp, deshalb jetzt 7:15.
+- **Der Skill darf der Rechercheanweisung nicht widersprechen.** Der Skill ist
+  generisch, die Anweisung in `blocks.json` ist spezifisch — bei Konflikt gilt
+  die Anweisung, und der Skill sagt das inzwischen auch so. Passiert ist: die
+  Ressort-Liste im Listenformat nannte „Sport" als Quelle leichter Meldungen,
+  der Nachrichtenblock schließt Sport komplett aus.
+- **Alles in `dashboard/assets/` wird hochgeladen.** Also muss die Vorlage es
+  auch verwenden — sonst liegt eine Datei ohne Zweck auf dem Server
+  (`favicon-32.png`, bis das `<link rel="icon">` dafür nachgetragen wurde).
 - **„Heute neu" hängt am Baudatum.** Die Seite steht 24 h; ab Mitternacht wäre
   die Aussage falsch. Deshalb `data-stand`/`data-alt` und der Umschalter im
   Skript — nicht wegoptimieren.
