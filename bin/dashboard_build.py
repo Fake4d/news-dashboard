@@ -222,8 +222,24 @@ def rohtext(block, state, url):
     titel = kachel_titel(block, state)
     if state is None:
         return f"{titel}\n\n(noch nicht befüllt)\n\n{url}"
-    kopf = f"{titel} — Stand: {deutsches_datum(state['stand_datum'])}"
+    kopf = f"{titel} — {stand_zeile(state)}"
     return f"{kopf}\n\n{klartext(state)}\n\n{url}"
+
+
+def stand_zeile(state):
+    """Stand-Zeile eines Themas, mit Zusatz, wenn zuletzt ergebnislos geprueft wurde.
+
+    'Stand' ist das Datum der letzten inhaltlichen Aenderung - bei einem Thema
+    mit langem Takt (z.B. woechentlich) und ruhiger Nachrichtenlage kann das
+    Wochen zurueckliegen. Ohne weiteren Hinweis wirkt die Kachel dann wie
+    eingefroren, obwohl im Hintergrund planmaessig weiter geprueft wird. Der
+    Zusatz macht sichtbar, dass ein neuerer Check einfach nichts Neues fand.
+    """
+    stand = f"Stand: {deutsches_datum(state['stand_datum'])}"
+    check = state.get("letzter_check")
+    if check and check != state["stand_datum"]:
+        stand += f" · geprüft {deutsches_datum(check)}"
+    return stand
 
 
 def inhalt_rendern(state):
@@ -239,7 +255,7 @@ def inhalt_rendern(state):
     else:
         absaetze = [a for a in state["quintessenz_text"].split("\n\n") if a.strip()]
         inhalt = "".join(f'<p class="text">{html.escape(a)}</p>' for a in absaetze)
-    return inhalt, f"Stand: {deutsches_datum(state['stand_datum'])}"
+    return inhalt, stand_zeile(state)
 
 
 def karte_bauen(block, permalink=None):

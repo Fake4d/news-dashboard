@@ -67,6 +67,11 @@ Jeder Modellaufruf kostet echtes Geld. Deshalb:
   ging von 15 auf 6 Suchen zurück und wurde dadurch 44 % billiger, ohne
   spürbar schlechter zu werden. Weiche Vorgaben („höchstens 8") befolgt das
   Modell unzuverlässig — eine **nummerierte, feste Liste** wirkt.
+- **Bei einfachem Ausgabeformat `effort: "low"` setzen.** Themen mit
+  Listen- oder Kurztextformat brauchen kein tiefes Nachdenken; gemessen an
+  einem solchen Thema: Denk-Tokens −97 %, Output-Tokens −67 %, ohne
+  Qualitätsverlust. Nicht blind auf alle Themen anwenden — bei Fließtext mit
+  eigener Einordnung (Top-Story, Themen mit Zusatzabsatz) nicht getestet.
 
 ## Rechercheanweisungen schreiben
 
@@ -149,6 +154,18 @@ Alle folgenden Punkte sind echte, bezahlte Fehler. Nicht neu entdecken:
 - **„Heute neu" hängt am Baudatum.** Die Seite steht 24 h; ab Mitternacht wäre
   die Aussage falsch. Deshalb `data-stand`/`data-alt` und der Umschalter im
   Skript — nicht wegoptimieren.
+- **„Unverändert" ist nicht dasselbe wie „noch richtig".** Reine Zeitangaben im
+  bisherigen Text („in einer Woche", „steht noch aus") werden allein durch
+  Zeitablauf falsch, auch ohne neue Fakten. Der Skill zählt das inzwischen
+  ausdrücklich als `geaendert` und verlangt eine Umformulierung auf den
+  heutigen Blickwinkel — sonst bleibt eine überholte Formulierung stehen, nur
+  weil die Recherche nichts Neues *gefunden* hat.
+- **Eine ruhige Kachel sieht aus wie eine kaputte.** Bei langem Takt kann
+  `stand_datum` wochenlang unverändert bleiben, obwohl planmäßig weiter
+  geprüft wird — ohne sichtbaren Unterschied zwischen „nichts Neues" und
+  „die Automatik ist stehengeblieben". Deshalb zeigt der Kachel-Fuß zusätzlich
+  `letzter_check`, sobald der vom `stand_datum` abweicht (`stand_zeile()` in
+  `dashboard_build.py`).
 
 ## Sicherheit
 

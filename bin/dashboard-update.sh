@@ -127,6 +127,7 @@ for b in blocks:
         clean(b.get("zusatzabsatz_hinweis", "")),
         b.get("format", "text"),
         "1" if b.get("titel_dynamisch") else "0",
+        clean(b.get("effort", "")),
         str(b["cadence_days"]), faellig,
         state["stand_datum"], check.isoformat(), clean(kern), clean(state.get("quintessenz_text", "")),
     ]
@@ -141,7 +142,7 @@ fi
 
 LAEUFE=0
 
-while IFS=$'\x1f' read -r ID TITEL HINWEIS ZUSATZ FORMAT TITELDYN CADENCE FAELLIG STAND CHECK KERN TEXT; do
+while IFS=$'\x1f' read -r ID TITEL HINWEIS ZUSATZ FORMAT TITELDYN EFFORT CADENCE FAELLIG STAND CHECK KERN TEXT; do
     [ -z "$ID" ] && continue
 
     if [ -n "$NUR_BLOCK" ] && [ "$ID" != "$NUR_BLOCK" ]; then
@@ -186,12 +187,26 @@ Ausgabeformat: LISTE (nicht Fließtext) — QUINTESSENZ enthält je Meldung gena
 Kacheltitel: DYNAMISCH — diese Kachel heißt auf der Seite nach ihrem heutigen Inhalt. Gib deshalb zusätzlich eine TITEL-Zeile aus (direkt nach STAND). Siehe Abschnitt 'Dynamischer Kacheltitel' im Skill."
     fi
 
+    # Kurz formatierte Bloecke (Liste/Kurztext) brauchen kein tiefes Reasoning;
+    # blocks.json kann das per "effort" senken (gemessen 30.08.2026: nachrichten/
+    # topstory/hackernews verbrauchten 50-60% ihres Outputs als unsichtbares
+    # Denken fuer simple Formate - siehe project_dashboard.md).
+    EFFORT_ARGS=()
+    if [ -n "$EFFORT" ]; then
+        EFFORT_ARGS=(--effort "$EFFORT")
+    fi
+
     # stdin auf /dev/null: claude -p liest gepipetes stdin als Eingabe mit
     # und wuerde sonst die restlichen Themen-Zeilen der Schleife verschlucken
     # (nur das erste faellige Thema liefe, der Rest fiele stumm aus).
-    MODELL_AUSGABE=$(timeout 900 "$CLAUDE_BIN" -p --model sonnet \
+    # --output-format json statt text: liefert total_cost_usd + usage mit, damit
+    # sich der Fensterverbrauch je Thema nachvollziehen laesst (siehe Kosten-Log
+    # unten), ohne dafuer extra in den Session-Transkripten wuehlen zu muessen.
+    LAUF_JSON=$(timeout 900 "$CLAUDE_BIN" -p --model sonnet \
         --allowedTools "Skill,WebSearch,WebFetch" \
         --max-turns 15 \
+        --output-format json \
+        "${EFFORT_ARGS[@]}" \
         "Führe den Skill 'dashboard-update' aus (Skill-Tool, skill: dashboard-update) für Block '$ID'.
 
 Thema: $TITEL
@@ -206,10 +221,27 @@ Gib die Antwort EXAKT im vorgegebenen Format des Skills aus, sonst nichts - kein
         </dev/null 2>>"$LOG")
     rc=$?
 
+    MODELL_AUSGABE=""
+    if [ "$rc" -eq 0 ]; then
+        MODELL_AUSGABE=$(printf '%s' "$LAUF_JSON" | jq -er '.result' 2>>"$LOG")
+    fi
+
     if [ "$rc" -ne 0 ] || [ -z "${MODELL_AUSGABE//[[:space:]]/}" ]; then
         log "Thema $ID: Claude-Lauf fehlgeschlagen (exit $rc, keine verwertbare Ausgabe) - uebersprungen"
         continue
     fi
+
+    # Kosten-Log: ein Zeile je Lauf, damit sich der Effekt von "effort" (und
+    # generell der Fensterverbrauch je Thema) ueber mehrere Tage nachvollziehen
+    # laesst, ohne Session-Transkripte durchsuchen zu muessen.
+    printf '%s\x1f%s\x1f%s\x1f%s\x1f%s\x1f%s\x1f%s\x1f%s\n' \
+        "$(ts)" "$ID" "${EFFORT:-standard}" \
+        "$(printf '%s' "$LAUF_JSON" | jq -r '.total_cost_usd // "?"')" \
+        "$(printf '%s' "$LAUF_JSON" | jq -r '.usage.output_tokens // "?"')" \
+        "$(printf '%s' "$LAUF_JSON" | jq -r '.usage.output_tokens_details.thinking_tokens // "?"')" \
+        "$(printf '%s' "$LAUF_JSON" | jq -r '.usage.cache_creation_input_tokens // "?"')" \
+        "$(printf '%s' "$LAUF_JSON" | jq -r '.num_turns // "?"')" \
+        >> "$LOGDIR/dashboard-kosten.log"
 
     ANWENDUNG=$(printf '%s\n' "$MODELL_AUSGABE" | python3 "$APPLY" "$ID" "$FORMAT" "$TITELDYN" 2>>"$LOG")
     arc=$?

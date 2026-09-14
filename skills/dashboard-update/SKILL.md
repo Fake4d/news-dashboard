@@ -64,6 +64,16 @@ gibt keine TITEL-Zeile.
    melden als spekulieren. Der Zusatzabsatz zählt dabei mit: hat sich nur die
    zitierte Aussage der Person geändert, das Hauptthema aber nicht, ist das
    allein schon `geaendert`.
+
+   **Abgelaufene Formulierungen zählen als Änderung.** Der alte Text ist nicht
+   nur dann überholt, wenn neue Fakten dazugekommen sind, sondern auch, wenn
+   seine eigene Sprache durch bloßen Zeitablauf falsch geworden ist: relative
+   Zeitangaben („in einer Woche", „kommenden Donnerstag", „demnächst"), ein
+   angekündigter Termin, der inzwischen vorbei ist, oder ein „steht noch aus",
+   das längst entschieden wurde. Prüfe den bisherigen Text deshalb immer gegen
+   das heutige Datum. Findet sich so eine Stelle, ist das `geaendert` — auch
+   wenn die Recherche sonst nichts Neues ergibt; dann den Satz auf den heutigen
+   Blickwinkel umschreiben und, wo es einen Ausgang gibt, diesen recherchieren.
 3. **Fließtext-Regeln für QUINTESSENZ:** 3–6 Kernaussagen als
    zusammenhängender Text (kein Bullet-Stil), eigene destillierte
    Einschätzung. Quellen höchstens beiläufig im Satz erwähnen ("Reuters und

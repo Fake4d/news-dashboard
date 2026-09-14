@@ -96,11 +96,21 @@ Vier Sparmechanismen greifen ineinander:
    verhindert aber aufgeblähte Pseudo-Neuigkeiten.
 4. **Upload nur bei echter Änderung.** Der Generator vergleicht das Ergebnis
    byteweise mit der vorhandenen Datei und meldet nur wirklich geänderte Seiten.
+5. **Reasoning-Aufwand je Thema drosselbar.** `claude -p` unterstützt
+   `--effort low|medium|high|xhigh|max`. Themen mit einfachem Ausgabeformat
+   (Liste, Kurztext) brauchen kein tiefes Nachdenken — ein optionales Feld
+   `"effort"` in `blocks.json` reicht das an den Lauf durch. Gemessen an einem
+   Listen-Thema: unsichtbare Denk-Tokens −97 %, Output-Tokens −67 %, Format und
+   inhaltliche Qualität blieben gleich.
 
 Gemessen über 31 Tage: die gesamte Automatik dieses Projekts (rund 170 Läufe
 im Monat) entspricht etwa 59 $ API-Gegenwert. Der teuerste Einzelposten ist der
 tägliche Nachrichtenüberblick mit rund 16 $, weil er als einziger jeden Tag
-läuft und breit über mehrere Ressorts recherchiert.
+läuft und breit über mehrere Ressorts recherchiert. Jeder Lauf schreibt dank
+`--output-format json` eine Zeile (Kosten, Output-Tokens, Denk-Tokens, Turns)
+in ein Kosten-Log, damit sich der Effekt von `effort` und der Fensterverbrauch
+je Thema über mehrere Tage nachvollziehen lassen, ohne Session-Transkripte
+durchsuchen zu müssen.
 
 ## Bauteile
 
@@ -121,6 +131,7 @@ läuft und breit über mehrere Ressorts recherchiert.
 | `bin/dashboard_farbe.py` | Farbmathematik: sRGB ↔ OKLab/OKLCH, Abstand, Kontrast |
 | `bin/dashboard_farben.py` | Werkzeug: Palette prüfen, Vorschlag rechnen, anwenden |
 | `bin/dashboard_farbvorschau.py` | baut eine Vergleichsseite für Farbvorschläge |
+| `bin/dashboard-kosten-report.sh` | einmaliger Kosten-Vergleichsbericht nach einer `effort`-Umstellung |
 
 Bewusst getrennt: **Der Skill fasst keine Dateien an.** Er bekommt Thema und
 bisherigen Stand komplett über den Prompt herein und gibt seine Antwort in einem
@@ -225,6 +236,7 @@ Was sich bewährt hat:
 | `format: "liste"` | Meldungsliste statt Fließtext (siehe unten) |
 | `breit: true` | Kachel über alle Rasterspalten, Liste zweispaltig |
 | `titel_dynamisch: true` | die Kachel heißt nach ihrem heutigen Inhalt (siehe unten) |
+| `effort: "low"` | `--effort low` statt Standard für den Modelllauf (siehe [Warum es so wenig kostet](#warum-es-so-wenig-kostet)) |
 | `dunkel_stufe` | Helligkeit der Farbe im Dunkelmodus: `hell`, `mittel` oder `tief` |
 | `familie` | zwei Themen derselben Familie dürfen sich farblich ähneln |
 | `farbe_dunkel` | Notausgang: übersteuert die berechnete Dunkelmodus-Farbe |
@@ -408,6 +420,15 @@ jüngste vorhandene Datum: „zuletzt 30. August".
 (Baudatum) und `data-alt` („4 neu am 31. August 2026") mit; ein paar Zeilen
 Skript in der Vorlage tauschen den Text aus, sobald das Baudatum nicht mehr
 heute ist.
+
+**Kachel-Fuß gegen den Eingefroren-Eindruck:** Bei langem Takt (z. B.
+wöchentlich) und ruhiger Nachrichtenlage kann `stand_datum` wochenlang
+stehen bleiben, obwohl im Hintergrund planmäßig weiter geprüft wird — ohne
+weiteren Hinweis wirkt die Kachel dann wie kaputt statt bloß ereignislos.
+Weicht `letzter_check` vom `stand_datum` ab, hängt die Kachel deshalb ein
+„· geprüft \<Datum\>" an ihre Stand-Zeile an (`stand_zeile()` in
+`dashboard_build.py`) — sichtbar für jedes Thema auf jedem Dashboard, kein
+Sonderfall für einzelne Kacheln.
 
 ## Verhalten als Homescreen-App
 

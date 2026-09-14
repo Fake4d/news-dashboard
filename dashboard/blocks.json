@@ -12,7 +12,8 @@
     "format": "liste",
     "breit": true,
     "recherche_hinweis": "Der Nachrichtenüberblick des Tages: rund sechs bis sieben wirklich wichtige Meldungen (Weltlage, Politik, Wirtschaft, Gesellschaft, Wissenschaft — Deutschland und international gemischt), dazu ein bis drei leichte, boulevardeske oder schlicht kuriose Meldungen. Die Verteilung ist bewusst flexibel: an ereignisreichen Tagen dürfen es mehr harte Meldungen sein, an ruhigen mehr leichte, insgesamt sieben bis zehn Zeilen. Jede Meldung ist EINE Zeile, die für sich verständlich ist — Ereignis plus die entscheidende Zahl oder Folge, keine Schlagzeilen-Fragmente und keine Quellenangaben. Was gestern schon dranstand, nur wiederholen, wenn es eine echte Weiterentwicklung gibt, und dann mit dem neuen Stand. Die leichten Meldungen sind der Ausklang der Kachel und müssen wirklich leicht sein — kurios, skurril, komisch, aus Kultur oder Panorama. Sportnachrichten sind komplett ausgeschlossen, auch als leichte Meldung — keine Ergebnisse, Transfers, Turniere oder sonstigen Sportthemen, egal wie kurios. Eine anrührende oder tröstliche Einzelheit aus einem Unglück ist ausdrücklich KEINE leichte Meldung, und ein Ereignis, das oben schon als ernste Meldung steht, darf unten nicht ein zweites Mal auftauchen (Gegenbeispiel, das nicht passieren darf: oben die Flutkatastrophe in Nepal, unten als 'leichte' Meldung die Rettung einer Schulklasse durch dieselbe Flut). Dieser Block ist ein Tagesüberblick und meldet deshalb immer 'geaendert' mit dem heutigen Datum.",
-    "dunkel_stufe": "tief"
+    "dunkel_stufe": "tief",
+    "effort": "low"
   },
   {
     "id": "topstory",
@@ -26,7 +27,8 @@
     "cadence_days": 1,
     "weekday_only": false,
     "recherche_hinweis": "Die eine wichtigste Nachricht des Tages, ausgewählt und ausgeschrieben. Zuerst entscheiden, welches Ereignis heute die Top-Story ist: das, was die meisten Menschen betrifft oder am weitesten trägt — Weltlage, Politik, Wirtschaft, Gesellschaft oder Wissenschaft; im Zweifel das, womit eine Hauptnachrichtensendung heute Abend aufmachen würde. Dann diese EINE Geschichte erzählen: was passiert ist, welcher Hintergrund nötig ist, um sie einzuordnen (wie es dazu kam, wer die Beteiligten sind, was vorausging), was sie praktisch bedeutet und wie es absehbar weitergeht. Fließtext am oberen Ende der üblichen Länge, rund 150–190 Wörter, ein Absatz. Ausdrücklich KEIN Nachrichtenticker und keine Aufzählung mehrerer Ereignisse — eine Geschichte, zu Ende erzählt; wer nur diese Kachel liest, versteht den Vorgang vollständig. Die Kachel 'Der Tag im Überblick' auf derselben Seite bringt dasselbe Ereignis womöglich als Einzeiler, das ist gewollt: dort die Breite, hier die Tiefe. Sport ist komplett ausgeschlossen, ebenso reine Promi- und Boulevardthemen — das Leichte hat in der Überblickskachel seinen Platz. Läuft eine Geschichte über mehrere Tage, jeden Tag neu entscheiden und mit dem heutigen Stand schreiben, nie den gestrigen Text wiederholen; gibt es zur gestrigen Story nichts Neues, lieber eine andere Geschichte nehmen. Dieser Block ist ein Tagesthema und meldet deshalb immer 'geaendert' mit dem heutigen Datum.",
-    "dunkel_stufe": "tief"
+    "dunkel_stufe": "tief",
+    "effort": "low"
   },
   {
     "id": "bundespolitik",
@@ -199,7 +201,8 @@
     "cadence_days": 2,
     "weekday_only": false,
     "recherche_hinweis": "Quelle ist https://news.ycombinator.com/best per WebFetch (die nach Punkten stärksten Beiträge der letzten Tage — NICHT die stündlich wechselnde Startseite /news). Aufgabe ist ausdrücklich KEINE Linkliste und keine Aufzählung von Überschriften, sondern: Welche zwei bis drei Themen beschäftigen die Tech-Community gerade wirklich, und worüber wird gestritten? Die Kommentarzahl im Verhältnis zu den Punkten ist dabei das beste Signal für Kontroverse — viele Kommentare bei mittlerer Punktzahl heißt: umstritten. Einzelne Titel höchstens beiläufig im Satz nennen ('unter dem meistdiskutierten Beitrag der Woche ...'), nie als Liste oder Link. Nischiges (einzelne Show-HN-Projekte, obskure Programmiersprachen-Beiträge) weglassen, außer es steht beispielhaft für einen größeren Trend. Themen, die schon in den Kacheln KI, Apple oder Google stehen, hier nur aufgreifen, wenn die HN-Diskussion einen deutlich anderen Blickwinkel hat — sonst weglassen, nicht doppeln.",
-    "dunkel_stufe": "hell"
+    "dunkel_stufe": "hell",
+    "effort": "low"
   },
   {
     "id": "claude-anthropic",
