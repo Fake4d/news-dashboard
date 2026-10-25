@@ -250,6 +250,7 @@ Was sich bewährt hat:
 | `familie` | zwei Themen derselben Familie dürfen sich farblich ähneln |
 | `quelle_url`, `quelle_text` | Link aufs Original im Kachelfuß („ganzes Briefing ↗“), für Kacheln, die eine feste Quelle eindampfen |
 | `schlagzeilen: "tagesschau"` | aktuelle Tagesschau-Schlagzeilen mit Zeitstempel als Vorlage im Prompt (siehe [Tagesaktuell heißt: von heute](#tagesaktuell-heißt-von-heute)) |
+| `kurse: {"DAX": "^GDAXI", …}` | Schlusskurse der letzten Handelstage von Yahoo Finance als Vorlage im Prompt (siehe [Börsenkurse: abrufen, nicht suchen](#börsenkurse-abrufen-nicht-suchen)) |
 | `links_aus` | Link je Listenzeile, geprüft gegen diese Seite bzw. diesen Feed (siehe [Links je Zeile](#links-je-zeile-die-ausnahme)) |
 | `farbe_dunkel` | Notausgang: übersteuert die berechnete Dunkelmodus-Farbe |
 
@@ -463,6 +464,31 @@ und eine Aktualitätsregel gab es nicht. Zwei Gegenmittel:
 Die Vorlage ist an deutsche Nachrichten gebunden. Wer das Projekt für eine
 andere Region nutzt, ersetzt `schlagzeilen()` durch eine passende Quelle mit
 Zeitstempeln.
+
+### Börsenkurse: abrufen, nicht suchen
+
+Die Aktienmarkt-Kachel zeigte eine Woche lang die Schlusskurse vom 16.10. als
+„letzte belegte“ und behauptete, für die folgenden Tage gebe es keine. Die
+Websuche fand schlicht nichts Neueres. Kurse sind aber Daten und keine
+Nachrichten, deshalb werden sie jetzt abgerufen:
+
+- **`"kurse"`** in `blocks.json` ordnet Anzeigenamen Yahoo-Symbolen zu
+  (`{"DAX": "^GDAXI", "EUR/USD": "EURUSD=X", …}`). Vor einem fälligen Lauf
+  holt `kurse()` in `dashboard-update.sh` für jedes Symbol die letzten
+  Handelstage von der Yahoo-Finance-Chart-API
+  (`query1.finance.yahoo.com/v8/finance/chart/<symbol>?range=10d&interval=1d`,
+  ohne Schlüssel). Daraus wird der Absatz „AKTUELLE SCHLUSSKURSE …“: fünf
+  Handelstage mit Datum und Veränderung zum Vortag sowie die Veränderung seit
+  dem Tag davor. Die Prozente rechnet das Skript, nicht das Modell. Enthält
+  der Name „Rendite“, steht die Veränderung in Prozentpunkten. Devisen bekommen
+  vier Nachkommastellen, und ein Wert vom heutigen Tag ist als „laufend“
+  markiert.
+- **Skill-Regel „Mitgelieferte Kurse gehen vor“**: Alle Zahlen kommen nur aus
+  der Vorlage, die Websuche liefert nur die Gründe für die Bewegungen. Ein
+  neuer Schlusskurs zählt immer als Änderung.
+
+Die Chart-API ist inoffiziell und kann sich ändern. Fällt sie aus, läuft die
+Kachel ohne Vorlage weiter.
 
 ## Farben
 

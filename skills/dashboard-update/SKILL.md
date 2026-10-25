@@ -78,6 +78,18 @@ gibt keine TITEL-Zeile.
    früher tatsächlich Inhalte geliefert haben. Im normalen Lauf zuerst dort
    nachsehen, im Stillstand gerade nicht nur dort (siehe oben).
 
+   **Mitgelieferte Kurse gehen vor.** Steht in der Rechercheanweisung ein
+   Abschnitt „AKTUELLE SCHLUSSKURSE …“, dann sind das abgerufene Börsendaten
+   mit Datum, nicht Suchergebnisse. Alle Zahlen zu Indizes, Devisen, Öl, Gold
+   und Renditen kommen **nur von dort**. Eine Websuche zeigt oft Artikel von
+   vor einer Woche als „aktuell“ (Anlass 25.10.2026: Die Aktienmarkt-Kachel
+   meldete die Kurse vom 16.10. als neuesten Stand). Behaupte nie, Kurse seien
+   „nicht belegt“, wenn sie in der Vorlage stehen. Mit `WebSearch` suchst du
+   nur die *Gründe* für die Bewegungen (Notenbanken, Konjunkturdaten,
+   Unternehmenszahlen), und zwar mit dem Datum des letzten Handelstags in der
+   Anfrage. Ein neuer Schlusskurs gegenüber dem bisherigen Stand ist immer
+   `geaendert`.
+
    Steht ein Zusatzabsatz-Hinweis im Prompt: dafür **getrennt** recherchieren,
    nicht mit der Hauptrecherche vermischen.
    - Bei einer Person mit Threads-Profil (z. B. `threads.com/@<handle>`)

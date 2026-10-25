@@ -91,8 +91,22 @@
     "farbe": "#1b9d60",
     "cadence_days": 1,
     "weekday_only": true,
-    "recherche_hinweis": "Aktuelle Lage an den wichtigsten Aktienmärkten (DAX, US-Indizes), größere Kursbewegungen, Zinsentscheidungen oder Ereignisse mit spürbarem Einfluss auf die Märkte.",
-    "dunkel_stufe": "mittel"
+    "recherche_hinweis": "Aktuelle Lage an den wichtigsten Aktienmärkten (DAX, US-Indizes), größere Kursbewegungen, Zinsentscheidungen oder Ereignisse mit spürbarem Einfluss auf die Märkte. Die Zahlen kommen aus den mitgelieferten Schlusskursen: Beginne mit dem letzten Handelstag (Datum nennen) und der Entwicklung seit dem bisherigen Stand, dann die Gründe. Die Tagesschau-Schlagzeilen dienen nur als Hinweis auf Wirtschaftsereignisse, alles andere daraus ignorieren.",
+    "dunkel_stufe": "mittel",
+    "kurse": {
+      "DAX": "^GDAXI",
+      "MDAX": "^MDAXI",
+      "Euro Stoxx 50": "^STOXX50E",
+      "S&P 500": "^GSPC",
+      "Nasdaq": "^IXIC",
+      "Dow Jones": "^DJI",
+      "Nikkei": "^N225",
+      "EUR/USD": "EURUSD=X",
+      "Brent (USD/Barrel)": "BZ=F",
+      "Gold (USD/Unze)": "GC=F",
+      "US-Rendite 10 J. (%)": "^TNX"
+    },
+    "schlagzeilen": "tagesschau"
   },
   {
     "id": "trade-republic",

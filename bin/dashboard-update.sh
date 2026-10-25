@@ -143,6 +143,63 @@ def schlagzeilen():
         + " || ".join(zeilen) if zeilen else "")
     return _schlagzeilen
 
+def kurse(symbole):
+    """Schlusskurse der letzten Handelstage von Yahoo Finance, als ein Absatz.
+
+    Anlass 25.10.2026: Die Aktienmarkt-Kachel nannte eine Woche lang die
+    Schlusskurse vom 16.10. als 'letzte belegte' und behauptete, fuer Montag
+    bis Mittwoch gebe es keine - die Websuche fand schlicht nichts Neueres.
+    symbole kommt aus blocks.json ({"DAX": "^GDAXI", ...}). Prozente rechnet
+    das Skript selbst, damit das Modell nicht rechnen muss. Faellt der Abruf
+    aus, laeuft das Thema ohne Vorlage wie frueher.
+    """
+    import urllib.request, urllib.parse
+    def de(x, stellen=2, vorzeichen=False):
+        s = f"{x:{'+' if vorzeichen else ''},.{stellen}f}"
+        return s.replace(",", "_").replace(".", ",").replace("_", ".")
+    tage = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
+    teile = []
+    for name, sym in symbole.items():
+        url = ("https://query1.finance.yahoo.com/v8/finance/chart/"
+               + urllib.parse.quote(sym) + "?range=10d&interval=1d")
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=30) as r:
+                d = json.load(r)["chart"]["result"][0]
+        except Exception as e:
+            print(f"Kurs {name} ({sym}) nicht abrufbar: {e}", file=sys.stderr)
+            continue
+        # Je Kalendertag der letzte Wert: Devisen liefern neben dem Tageswert
+        # noch einen laufenden Eintrag mit demselben Datum.
+        je_tag = {}
+        for t, c in zip(d.get("timestamp", []), d["indicators"]["quote"][0]["close"]):
+            if c is not None:
+                je_tag[datetime.date.fromtimestamp(t)] = c
+        reihe = sorted(je_tag.items())
+        if len(reihe) < 2:
+            continue
+        # Renditen aendern sich in Prozentpunkten, nicht in Prozent;
+        # Devisenkurse brauchen vier Nachkommastellen.
+        rendite = "Rendite" in name
+        stellen = 4 if reihe[-1][1] < 10 and not rendite else 2
+        def diff(neu, alt):
+            if rendite:
+                return f"{de(neu - alt, 2, True)} Pp"
+            return f"{de((neu / alt - 1) * 100, 1, True)} %"
+        werte = []
+        for i in range(max(1, len(reihe) - 5), len(reihe)):
+            tag, c = reihe[i]
+            laufend = " laufend" if tag == heute else ""
+            werte.append(f"{tage[tag.weekday()]} {tag:%d.%m.} {de(c, stellen)} ({diff(c, reihe[i - 1][1])}{laufend})")
+        basis_tag, basis = reihe[max(0, len(reihe) - 6)]
+        teile.append(f"{name}: " + " · ".join(werte)
+                     + f"; seit {basis_tag:%d.%m.} {diff(reihe[-1][1], basis)}")
+    if not teile:
+        return ""
+    return ("AKTUELLE SCHLUSSKURSE (Yahoo Finance, je Handelstag mit Veränderung zum "
+            "Vortag, abgerufen " + datetime.datetime.now().strftime("%d.%m.%Y %H:%M")
+            + "): " + " || ".join(teile))
+
 for b in blocks:
     bid = b["id"]
     if bid not in genutzt:
@@ -191,6 +248,8 @@ for b in blocks:
     # (siehe schlagzeilen()) - nur fuer faellige Themen, der Abruf kostet Zeit.
     if b.get("schlagzeilen") == "tagesschau" and faellig == "1":
         hinweis += " " + schlagzeilen()
+    if b.get("kurse") and faellig == "1":
+        hinweis += " " + kurse(b["kurse"])
 
     kern = "||".join(state.get("kernaussagen", []))
     zeile = [
