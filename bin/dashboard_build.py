@@ -193,8 +193,10 @@ def liste_rendern(text):
         meldung = zeile[1:].strip() if zeile[:1] in ("*", "~") else zeile
         meldung, url = link_abtrennen(meldung)
         klasse = ' class="leicht"' if leicht else ""
+        # &nbsp; statt Leerzeichen: sonst bricht der Pfeil allein in die
+        # naechste Zeile und steht dort verwaist.
         mehr = (
-            f' <a class="mehr" href="{html.escape(url)}" target="_blank" '
+            f'&nbsp;<a class="mehr" href="{html.escape(url)}" target="_blank" '
             f'rel="noopener" aria-label="Artikel lesen">↗</a>'
             if url else ""
         )
