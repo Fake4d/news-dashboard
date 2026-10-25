@@ -249,6 +249,7 @@ Was sich bewährt hat:
 | `dunkel_stufe` | Helligkeit der Farbe im Dunkelmodus: `hell`, `mittel` oder `tief` |
 | `familie` | zwei Themen derselben Familie dürfen sich farblich ähneln |
 | `quelle_url`, `quelle_text` | Link aufs Original im Kachelfuß („ganzes Briefing ↗“), für Kacheln, die eine feste Quelle eindampfen |
+| `schlagzeilen: "tagesschau"` | aktuelle Tagesschau-Schlagzeilen mit Zeitstempel als Vorlage im Prompt (siehe [Tagesaktuell heißt: von heute](#tagesaktuell-heißt-von-heute)) |
 | `links_aus` | Link je Listenzeile, geprüft gegen diese Seite bzw. diesen Feed (siehe [Links je Zeile](#links-je-zeile-die-ausnahme)) |
 | `farbe_dunkel` | Notausgang: übersteuert die berechnete Dunkelmodus-Farbe |
 
@@ -435,6 +436,33 @@ geprüft, 11 hatten echte Neuigkeiten. Eine Kachel fand erst mit Quellenwechsel
 etwas, nämlich über fremdsprachige Medien. Die übrigen zwei waren auch bei
 Gegenprobe von Hand wirklich ruhig. Normale Läufe werden kaum teurer,
 Wachhund-Läufe kosten etwa das Doppelte und sind selten.
+
+### Tagesaktuell heißt: von heute
+
+Bei den Tageskacheln zeigte sich dasselbe Problem andersherum. Sie melden
+immer „geändert“, brachten aber alte Fakten als Meldung des Tages: einen
+neun Tage alten DAX-Schlusskurs und eine Monatsinflation, die in einer Woche
+viermal dastand. Die Websuche nach „Oktober 2026“ liefert den ganzen Monat,
+und eine Aktualitätsregel gab es nicht. Zwei Gegenmittel:
+
+- **Datierte Vorlage.** Mit `"schlagzeilen": "tagesschau"` holt
+  `schlagzeilen()` im Python-Teil von `dashboard-update.sh` vor dem Lauf die
+  Tagesschau-API: die redaktionell gewichtete Startseite (`api2u/homepage/`,
+  12 Meldungen) plus `api2u/news/?ressort=inland|ausland|wirtschaft|wissen`
+  (je 6, nur die letzten 36 Stunden, ohne Sport und Regionales). Das ergibt
+  rund 28 Meldungen mit Zeitstempel, die als Absatz „AKTUELLE SCHLAGZEILEN …“
+  am Rechercheauftrag hängen. Der Abruf läuft im Skript, weil das
+  WebFetch-Werkzeug der CLI tagesschau.de nicht abrufen darf. Fällt er aus,
+  läuft das Thema ohne Vorlage weiter.
+- **Aktualitätspflicht im Skill.** Jede Listenzeile muss ein Ereignis der
+  letzten rund 36 Stunden sein, belegt durch Datum oder Zeitstempel. Ältere
+  Fakten dürfen nur als Einordnung innerhalb einer Zeile stehen. Jede
+  Suchanfrage trägt das Tagesdatum, nie nur den Monat. Mit Vorlage macht der
+  Skill nur noch 3 ergänzende Suchen statt der festen Ressort-Liste mit 6.
+
+Die Vorlage ist an deutsche Nachrichten gebunden. Wer das Projekt für eine
+andere Region nutzt, ersetzt `schlagzeilen()` durch eine passende Quelle mit
+Zeitstempeln.
 
 ## Farben
 

@@ -83,6 +83,66 @@ dashboards = json.load(open("/home/gra/claude/dashboard/dashboards.json", encodi
 # Nur Themen pruefen, die mindestens ein Dashboard auch anzeigt.
 genutzt = {bid for d in dashboards for bid in d["blocks"]}
 
+_schlagzeilen = None
+def schlagzeilen():
+    """Aktuelle Top-Meldungen der Tagesschau mit Zeitstempel, als ein Absatz.
+
+    Anlass 25.10.2026: Die Nachrichtenkachel brachte als 'Meldung des Tages'
+    den DAX-Schluss vom 16.10. und die Septemberinflation (viermal in einer
+    Woche), weil die Websuche nach 'Oktober 2026' den ganzen Monat liefert.
+    WebFetch darf tagesschau.de nicht abrufen, ein direkter Abruf hier schon.
+    Die Startseite ist redaktionell gewichtet, die News-Liste ergaenzt
+    Inland/Ausland/Wirtschaft/Wissen der letzten 24 Stunden. Faellt der Abruf
+    aus, laeuft das Thema ohne Vorlage wie frueher.
+    """
+    global _schlagzeilen
+    if _schlagzeilen is not None:
+        return _schlagzeilen
+    import urllib.request
+    def laden(url):
+        req = urllib.request.Request(url, headers={"User-Agent": "news-dashboard"})
+        with urllib.request.urlopen(req, timeout=30) as r:
+            return json.load(r).get("news", [])
+    # Die allgemeine News-Liste ist fast nur Regionales; die Ressort-Listen
+    # sind ergiebiger. Je Ressort hoechstens 6, damit keins die Vorlage flutet.
+    basis = "https://www.tagesschau.de/api2u/"
+    try:
+        quellen = [(laden(basis + "homepage/"), 12)]
+        for ressort in ("inland", "ausland", "wirtschaft", "wissen"):
+            quellen.append((laden(f"{basis}news/?ressort={ressort}"), 6))
+    except Exception as e:
+        print(f"Schlagzeilen nicht abrufbar: {e}", file=sys.stderr)
+        _schlagzeilen = ""
+        return _schlagzeilen
+    # Die API liefert Ortszeit mit Offset ("2026-10-25T14:57:00.000+01:00"),
+    # der Server laeuft ebenfalls auf deutscher Zeit - Textvergleich reicht.
+    # 36 Stunden, damit der 6:10-Lauf auch den Vortag ganz sieht.
+    grenze = (datetime.datetime.now() - datetime.timedelta(hours=36)).isoformat()
+    gesehen, zeilen = set(), []
+    for quelle, je_quelle in quellen:
+        genommen = 0
+        for n in quelle:
+            if genommen >= je_quelle:
+                break
+            titel, datum = n.get("title"), n.get("date", "")
+            if not titel or titel in gesehen or datum[:19] < grenze[:19]:
+                continue
+            # Sport und Wetter haben bei der Tagesschau kein Ressort.
+            if not n.get("ressort"):
+                continue
+            genommen += 1
+            gesehen.add(titel)
+            teile = [f"[{datum[:16].replace('T', ' ')}, {n['ressort']}]",
+                     f"{n.get('topline') + ': ' if n.get('topline') else ''}{titel}"]
+            if n.get("firstSentence"):
+                teile.append("— " + " ".join(n["firstSentence"].split())[:180])
+            zeilen.append(" ".join(teile))
+    _schlagzeilen = (
+        "AKTUELLE SCHLAGZEILEN der Tagesschau (Startseite zuerst, mit Zeitstempel, "
+        "abgerufen " + datetime.datetime.now().strftime("%d.%m.%Y %H:%M") + "): "
+        + " || ".join(zeilen) if zeilen else "")
+    return _schlagzeilen
+
 for b in blocks:
     bid = b["id"]
     if bid not in genutzt:
@@ -127,6 +187,10 @@ for b in blocks:
     hinweis = b["recherche_hinweis"]
     if state.get("bewaehrte_quellen"):
         hinweis += " Bewährte Quellen aus früheren Läufen: " + ", ".join(state["bewaehrte_quellen"]) + "."
+    # Tagesthemen bekommen die aktuellen Schlagzeilen mit Zeitstempel vorab
+    # (siehe schlagzeilen()) - nur fuer faellige Themen, der Abruf kostet Zeit.
+    if b.get("schlagzeilen") == "tagesschau" and faellig == "1":
+        hinweis += " " + schlagzeilen()
 
     kern = "||".join(state.get("kernaussagen", []))
     zeile = [

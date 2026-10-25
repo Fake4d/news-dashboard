@@ -193,6 +193,22 @@ Regeln für die einzelne Zeile:
   ausgewählt und eingedampft wird), dann gilt deren Vorgehen — die
   Ressort-Suche unten entfällt ganz, und auch die Mischung ernst/leicht richtet
   sich nach der Anweisung.
+- **Aktualität ist Pflicht.** Ein Tagesüberblick bringt nur Ereignisse der
+  letzten rund 36 Stunden (montags: seit Freitagabend). Für jede Zeile vor der
+  Ausgabe das Ereignisdatum aus der Quelle bestimmen. Ist es älter oder
+  unklar, fliegt die Zeile raus. Ältere Fakten dürfen nur als Einordnung
+  *innerhalb* einer Zeile über ein neues Ereignis stehen, nie als die Meldung
+  selbst. Verboten sind also Zeilen wie „Der DAX schloss am 16. Oktober bei
+  …“ in einer Ausgabe vom 25. Oktober oder die Inflationszahl des Vormonats,
+  die schon an den Vortagen dranstand. Jede Suchanfrage trägt das konkrete
+  Datum von heute oder gestern („24. Oktober 2026“), nie nur den Monat.
+- **Mitgelieferte Schlagzeilen gehen vor.** Enthält die Rechercheanweisung
+  einen Abschnitt „AKTUELLE SCHLAGZEILEN …“ mit Zeitstempeln, ist das die
+  Grundlage: Auswahl und Gewichtung kommen von dort, die Zeitstempel belegen
+  die Aktualität. Dann gilt statt der Liste unten nur **3 `WebSearch`**, um
+  zu ergänzen, was dort fehlt (Wirtschaft/Märkte, Wissenschaft, Kurioses),
+  oder um eine Schlagzeile mit einer entscheidenden Zahl zu füllen. Sport und
+  Regionales aus der Vorlage weglassen.
 - **Recherche in genau 6 `WebSearch`-Aufrufen, nicht mehr** — als feste
   Ressort-Liste abarbeiten, eine Suche pro Punkt, dann aufhören:
   1. Inland (Deutschland: Politik, Gesellschaft)
