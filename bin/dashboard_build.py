@@ -169,6 +169,19 @@ def stand_datum(block_id):
     return state["stand_datum"] if state else None
 
 
+LINK_RE = re.compile(r"\s*\[(https?://[^\s\]]+)\]\s*$")
+
+
+def link_abtrennen(meldung):
+    """'Satz. [https://...]' -> ('Satz.', url) - der Link ist geprueftes Beiwerk.
+
+    Nur Bloecke mit links_aus tragen ihn (dashboard_apply.py laesst ihn sonst
+    gar nicht in den State); der Satz muss auch ohne ihn verstaendlich sein.
+    """
+    m = LINK_RE.search(meldung)
+    return (meldung[:m.start()], m.group(1)) if m else (meldung, None)
+
+
 def liste_rendern(text):
     """Meldungsliste: je Zeile eine Meldung, Marker '*' ernst / '~' leicht."""
     zeilen = []
@@ -178,8 +191,14 @@ def liste_rendern(text):
             continue
         leicht = zeile.startswith("~")
         meldung = zeile[1:].strip() if zeile[:1] in ("*", "~") else zeile
+        meldung, url = link_abtrennen(meldung)
         klasse = ' class="leicht"' if leicht else ""
-        zeilen.append(f"<li{klasse}>{html.escape(meldung)}</li>")
+        mehr = (
+            f' <a class="mehr" href="{html.escape(url)}" target="_blank" '
+            f'rel="noopener" aria-label="Artikel lesen">↗</a>'
+            if url else ""
+        )
+        zeilen.append(f"<li{klasse}>{html.escape(meldung)}{mehr}</li>")
     return '<ul class="news">' + "".join(zeilen) + "</ul>"
 
 
@@ -208,7 +227,8 @@ def klartext(state, aufzaehlung="• "):
         zeile = zeile.strip()
         if not zeile:
             continue
-        zeilen.append(aufzaehlung + (zeile[1:].strip() if zeile[:1] in ("*", "~") else zeile))
+        meldung = zeile[1:].strip() if zeile[:1] in ("*", "~") else zeile
+        zeilen.append(aufzaehlung + link_abtrennen(meldung)[0])
     return "\n".join(zeilen)
 
 
@@ -276,6 +296,15 @@ def karte_bauen(block, permalink=None):
         if permalink else ""
     )
 
+    # Themen mit fester Quelle (z.B. ein taegliches Briefing, das die Kachel
+    # nur eindampft) verweisen auf das Original, fuer Tage mit mehr Lesezeit.
+    quelle = (
+        f'\n        <a class="quelle" href="{html.escape(block["quelle_url"])}" '
+        f'target="_blank" rel="noopener">'
+        f'{html.escape(block.get("quelle_text", "Quelle"))}&nbsp;↗</a>'
+        if block.get("quelle_url") else ""
+    )
+
     return f'''    <article class="{klassen}" id="block-{bid}" style="--accent:var(--c-{bid})">
       <div class="card-body">
         <div class="card-head">
@@ -289,7 +318,7 @@ def karte_bauen(block, permalink=None):
       </div>
       <div class="card-foot">
         <span class="stand">{stand}</span>
-        <span class="cadence">{takt_text(block)}</span>{teilen}
+        <span class="cadence">{takt_text(block)}</span>{quelle}{teilen}
       </div>
     </article>'''
 

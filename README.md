@@ -26,6 +26,7 @@ eines Vielfachen.
 - [Neues Dashboard anlegen](#neues-dashboard-anlegen)
 - [Einzelseite je Thema](#einzelseite-je-thema)
 - [Darstellungsformate](#darstellungsformate)
+- [Gegen eingeschlafene Kacheln](#gegen-eingeschlafene-kacheln)
 - [Farben](#farben)
 - [Frische-Anzeige](#frische-anzeige)
 - [Verhalten als Homescreen-App](#verhalten-als-homescreen-app)
@@ -214,9 +215,17 @@ Was sich bewährt hat:
 - **Überschneidungen ausdrücklich ausschließen.** Die Google-Kachel sagt: „KI
   nur, soweit sie speziell Google betrifft — die allgemeine Lage steht schon im
   KI-Block, nicht doppeln."
+- **Primärquellen nennen.** „Primärquellen, die bei jedem Lauf direkt geprüft
+  werden: …“ mit Amt, Herstellerblog, offizieller Bandseite oder
+  Lokalzeitung. Kennt eine Quelle einen festen Rhythmus (amtliche Monatszahlen
+  rund sechs Wochen nach Monatsende), gehört das dazu. Ohne diesen Hinweis
+  sucht das Modell allgemein nach „Neuigkeiten“ und findet zu wenig (siehe
+  [Gegen eingeschlafene Kacheln](#gegen-eingeschlafene-kacheln)).
 - **Dünne Lage erlauben.** Bei Kleinstthemen („Eichenau", „Wabeviertel")
   ausdrücklich: „Der Ort ist klein, dünne Nachrichtenlage ist normal — dann
-  lieber `unveraendert` melden als Belangloses aufzublähen."
+  lieber `unveraendert` melden als Belangloses aufzublähen." Aber nur dort:
+  Bei großen Themen ist eine wochenlang unveränderte Kachel fast immer ein
+  Recherchefehler, keine ruhige Lage.
 - **Bei Mehrdeutigkeit die Verwechslung benennen.** Die Wabeviertel-Kachel
   erklärt, dass der Name umgangssprachlich ist, wo das Viertel liegt, und
   warnt vor der gleichnamigen Straße in einem anderen Stadtteil.
@@ -239,6 +248,8 @@ Was sich bewährt hat:
 | `effort: "low"` | `--effort low` statt Standard für den Modelllauf (siehe [Warum es so wenig kostet](#warum-es-so-wenig-kostet)) |
 | `dunkel_stufe` | Helligkeit der Farbe im Dunkelmodus: `hell`, `mittel` oder `tief` |
 | `familie` | zwei Themen derselben Familie dürfen sich farblich ähneln |
+| `quelle_url`, `quelle_text` | Link aufs Original im Kachelfuß („ganzes Briefing ↗“), für Kacheln, die eine feste Quelle eindampfen |
+| `links_aus` | Link je Listenzeile, geprüft gegen diese Seite bzw. diesen Feed (siehe [Links je Zeile](#links-je-zeile-die-ausnahme)) |
 | `farbe_dunkel` | Notausgang: übersteuert die berechnete Dunkelmodus-Farbe |
 
 ## Neues Dashboard anlegen
@@ -356,6 +367,74 @@ Fehlt die Zeile oder ist sie länger als 80 Zeichen, **fällt der ganze Lauf
 durch** und die Kachel bleibt auf dem Stand von gestern. Das ist Absicht:
 lieber die gestrige Geschichte unter ihrer eigenen Überschrift als die heutige
 unter der gestrigen.
+
+### Feste Quelle statt Suche
+
+Eine Kachel muss nicht selbst recherchieren. Die Kachel `ki-briefing` dampft ein
+fremdes, tägliches KI-Briefing (rund 19 Meldungen, englisch) auf höchstens
+sieben deutsche Sätze ein. Ihr `recherche_hinweis` nennt Feed und
+Adressmuster, und der Skill lässt bei fester Quelle die Ressort-Suche des
+Listenformats ganz weg. Setzt die Quelle einen Tag aus, darf diese Kachel
+ausnahmsweise `unveraendert` melden, was im Listenformat sonst nicht vorgesehen
+ist. Die harte Obergrenze von sieben Zeilen steht ausdrücklich im Hinweis, weil
+das allgemeine Listenformat „neun bis zehn“ vorgibt. Ohne diese Angabe kamen
+beim ersten Lauf neun Zeilen.
+
+### Links je Zeile: die Ausnahme
+
+Grundsatz des Projekts ist „keine Linkliste“. Eine Kachel ist eine eigene
+Einschätzung aus vielen Quellen, ein einzelner Link je Satz wäre willkürlich.
+Bei einer Kachel wie `ki-briefing` entspricht aber jede Zeile genau **einem**
+Artikel. Dort ist der Link ehrliche Herkunft und keine Linkliste. Wer nur bei
+der einen Meldung tiefer lesen will, die ihn interessiert, klickt dort.
+
+`"links_aus": "<Seite oder Feed>"` schaltet das ein. Das Modell hängt
+`[https://…]` an die Zeile an. `dashboard_apply.py` lädt die `links_aus`-Adresse
+und lässt nur Links stehen, die dort **wortgleich** vorkommen. Ein erfundener
+oder vertippter Link wird mit einer Warnung entfernt, der Satz bleibt. Ist die
+Quelle nicht erreichbar, entfallen alle Links des Laufs. Bei Blöcken ohne das
+Feld schneidet der Parser angehängte Links grundsätzlich ab.
+`dashboard_build.py` rendert ein kleines „↗“ am Zeilenende, und Kopiertext und
+Link-Vorschau bleiben ohne Links.
+
+## Gegen eingeschlafene Kacheln
+
+Ein Befund aus dem Betrieb: Nach sieben Wochen stand fast die Hälfte der
+Kacheln weit über ihrem Takt unverändert, obwohl es Neues gab. Amtliche
+Monatszahlen lagen seit zwei Wochen vor, ein großes neues KI-Modell seit zwölf
+Tagen. Die Ursache war der Skill selbst. Er erlaubte 1–2 Suchen und sagte „bei
+dünner Quellenlage lieber `unveraendert`“. Die Zusammenfassungen der Websuche
+sind übervorsichtig („kein bestätigter Release“), auch wenn der konkrete
+Hinweis direkt darunter steht. Ein Lauf hatte das neue Modell im Suchergebnis
+und meldete trotzdem `unveraendert`. Vier Gegenmittel:
+
+1. **Spuren nachgehen.** Ein konkreter Hinweis (Name, Datum, Zahl) wird vor
+   `unveraendert` an der Primärquelle oder per gezielter Nachsuche geprüft
+   (bis zu zwei zusätzliche Aufrufe). `unveraendert` heißt, dass der alte Text
+   noch stimmt. „Seither keine neuen Modelle“ ist widerlegt, sobald es eines
+   gibt.
+2. **Stillstands-Wachhund.** Ist der Stand älter als max(3 × Takt, 10 Tage),
+   hängt `dashboard-update.sh` eine Zeile `Stillstand: …` an den Prompt. Der
+   Skill hat dann ein größeres Budget (4 Suchen, 2 Abrufe), prüft jede alte
+   Kernaussage einzeln und sucht auch in der anderen Sprache. Im Log steht
+   „gruendliche Pruefung“.
+3. **Primärquellen im `recherche_hinweis`** (siehe
+   [Die Rechercheanweisung ist der eigentliche Hebel](#die-rechercheanweisung-ist-der-eigentliche-hebel)).
+4. **Quellen-Gedächtnis.** Der Skill gibt optional eine Zeile
+   `QUELLEN: domain, domain` aus, mit den Quellen, die heute wirklich etwas
+   geliefert haben. `dashboard_apply.py` führt sie als `bewaehrte_quellen` im
+   State: neueste vorn, höchstens sechs, was nichts mehr liefert, fällt
+   heraus. Beim nächsten Lauf stehen sie als „Bewährte Quellen aus früheren
+   Läufen: …“ im Prompt. Im Stillstand muss der Skill dagegen bewusst
+   **andere** Quellen versuchen, und was dort trägt, landet im Gedächtnis. So
+   tauschen sich die Quellen mit der Zeit selbst aus. Die Zeile ist nie
+   Pflicht, eine kaputte kostet nur das Lernen, nicht den Lauf.
+
+Ergebnis beim ersten Durchgang: 13 eingeschlafene Kacheln erzwungen neu
+geprüft, 11 hatten echte Neuigkeiten. Eine Kachel fand erst mit Quellenwechsel
+etwas, nämlich über fremdsprachige Medien. Die übrigen zwei waren auch bei
+Gegenprobe von Hand wirklich ruhig. Normale Läufe werden kaum teurer,
+Wachhund-Läufe kosten etwa das Doppelte und sind selten.
 
 ## Farben
 

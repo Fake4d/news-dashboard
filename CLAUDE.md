@@ -81,8 +81,16 @@ Jeder Modellaufruf kostet echtes Geld. Deshalb:
   Polizeimeldungen").
 - Überschneidungen mit anderen Kacheln ausdrücklich ausschließen, sonst steht
   dieselbe Meldung doppelt auf der Seite.
+- **Primärquellen nennen** („Primärquellen, die bei jedem Lauf direkt geprüft
+  werden: …“), bei amtlichen Zahlen auch den Veröffentlichungsrhythmus. Ohne
+  das sucht das Modell allgemein und übersieht Neues.
 - Bei Kleinstthemen dünne Lage ausdrücklich erlauben („lieber `unveraendert`
-  melden als Belangloses aufzublähen").
+  melden als Belangloses aufzublähen"). Bei großen Themen ist wochenlanger
+  Stillstand dagegen ein Recherchefehler: siehe README, „Gegen eingeschlafene
+  Kacheln“.
+- Links gibt es nur per `links_aus` und nur, wo eine Zeile genau einer Quelle
+  entspricht. Nie als allgemeine Regel einführen, das widerspricht dem
+  Grundsatz „keine Linkliste“.
 - Bei mehrdeutigen Ortsnamen die Verwechslung benennen.
 - **Ein wörtliches Negativbeispiel schlägt zehn abstrakte Regeln.** Belegt: Das
   Modell hat „leicht/boulevardesk" zweimal als „positive Meldung"

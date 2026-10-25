@@ -121,9 +121,16 @@ for b in blocks:
         # Zeilenumbrueche wuerden die Zeilenstruktur sprengen, 0x1F das Feldraster.
         return str(s).replace("\x1f", " ").replace("\t", " ").replace("\n", " ").replace("\r", " ")
 
+    # Quellen, die frueheren Laeufen tatsaechlich etwas geliefert haben
+    # (QUELLEN-Zeile des Skills, gepflegt von dashboard_apply.py) - haengen am
+    # Hinweis statt an einem eigenen Feld, damit das 0x1F-Raster bleibt.
+    hinweis = b["recherche_hinweis"]
+    if state.get("bewaehrte_quellen"):
+        hinweis += " Bewährte Quellen aus früheren Läufen: " + ", ".join(state["bewaehrte_quellen"]) + "."
+
     kern = "||".join(state.get("kernaussagen", []))
     zeile = [
-        bid, clean(b["titel"]), clean(b["recherche_hinweis"]),
+        bid, clean(b["titel"]), clean(hinweis),
         clean(b.get("zusatzabsatz_hinweis", "")),
         b.get("format", "text"),
         "1" if b.get("titel_dynamisch") else "0",
@@ -169,6 +176,22 @@ while IFS=$'\x1f' read -r ID TITEL HINWEIS ZUSATZ FORMAT TITELDYN EFFORT CADENCE
     [ -z "$KERN" ] && KERN="(noch keine)"
     [ -z "$TEXT" ] && TEXT="(noch keiner - erster Lauf fuer dieses Thema)"
 
+    # Stillstands-Wachhund: steht ein Thema schon lange (mehr als 3 Takte,
+    # mindestens 10 Tage) auf demselben Inhalt, bekommt der Lauf den Auftrag
+    # zur gruendlichen Pruefung. Anlass 25.10.2026: Tourismus-Bayern hatte die
+    # seit 09.10. veroeffentlichten Augustzahlen dreimal uebersehen, die
+    # KI-Kachel Gemini 4 Argon - jeweils nach nur zwei Suchen 'unveraendert'.
+    STILLSTAND_ZEILE=""
+    if [ "$STAND" != "1970-01-01" ]; then
+        ALTER=$(( ( $(date +%s) - $(date -d "$STAND" +%s) ) / 86400 ))
+        SCHWELLE=$(( CADENCE * 3 > 10 ? CADENCE * 3 : 10 ))
+        if [ "$ALTER" -ge "$SCHWELLE" ]; then
+            log "Thema $ID: Stand $ALTER Tage alt (Schwelle $SCHWELLE) - gruendliche Pruefung"
+            STILLSTAND_ZEILE="
+Stillstand: Der bisherige Stand ist $ALTER Tage alt, obwohl das Thema alle $CADENCE Tage geprüft wird. Gründlich prüfen — siehe Abschnitt 'Langer Stillstand' im Skill."
+        fi
+    fi
+
     ZUSATZ_ZEILE=""
     if [ -n "$ZUSATZ" ]; then
         ZUSATZ_ZEILE="
@@ -211,7 +234,7 @@ Kacheltitel: DYNAMISCH — diese Kachel heißt auf der Seite nach ihrem heutigen
 
 Thema: $TITEL
 Rechercheanweisung: $HINWEIS
-$ZUSATZ_ZEILE$FORMAT_ZEILE$TITEL_ZEILE
+$ZUSATZ_ZEILE$FORMAT_ZEILE$TITEL_ZEILE$STILLSTAND_ZEILE
 
 Bisheriger Stand (zuletzt geändert am $STAND):
 Kernaussagen bisher: $KERN

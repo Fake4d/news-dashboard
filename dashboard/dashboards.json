@@ -8,6 +8,7 @@
     "url": "https://example.com/dashboard/",
     "blocks": [
       "nachrichten",
+      "ki-briefing",
       "topstory",
       "bundespolitik",
       "bayerische-politik",
@@ -15,6 +16,8 @@
       "trade-republic",
       "ki",
       "claude-anthropic",
+      "boris-cherny",
+      "openai-chatgpt",
       "hackernews",
       "apple",
       "google",
@@ -68,6 +71,7 @@
     "url": "https://example.com/dashboard-gaming/",
     "blocks": [
       "nachrichten",
+      "ki-briefing",
       "topstory",
       "bundespolitik",
       "bayerische-politik",
@@ -80,6 +84,7 @@
       "buecher",
       "ki",
       "claude-anthropic",
+      "openai-chatgpt",
       "hackernews"
     ]
   }

@@ -52,7 +52,7 @@
     "farbe": "#117ea3",
     "cadence_days": 2,
     "weekday_only": false,
-    "recherche_hinweis": "Was auf Landesebene in Bayern entschieden wird und politisch los ist: Beschlüsse des Bayerischen Landtags, Vorhaben und Kabinettsbeschlüsse der Staatsregierung (Ministerpräsident, Minister), Koalitionsdynamik zwischen CSU und Freien Wählern, Entwicklungen bei den bayerischen Landesverbänden der Parteien (Umfragen, Personalien, innerparteiliche Debatten), größere Kontroversen und wovon in München (Landtag, Staatskanzlei) gerade die Rede ist. Klar abgrenzen von den anderen Bayern-Kacheln: keine Stadtratsbeschlüsse oder Kommunalpolitik Münchens (eigene Kachel 'München'), keine Tourismus- oder Wirtschaftszahlen (eigene Kachel 'Tourismus in Bayern') — hier geht es um Landespolitik. Bundespolitische Themen nur, soweit sie eine spezifisch bayerische Wendung haben (z. B. Bundesratsinitiative der Staatsregierung, CSU-Positionierung zur Bundes-CDU) — die allgemeine Bundespolitik steht in der eigenen Kachel, nicht doppeln. Keine reinen Umfrage-Wasserstandsmeldungen ohne Einordnung.",
+    "recherche_hinweis": "Was auf Landesebene in Bayern entschieden wird und politisch los ist: Beschlüsse des Bayerischen Landtags, Vorhaben und Kabinettsbeschlüsse der Staatsregierung (Ministerpräsident, Minister), Koalitionsdynamik zwischen CSU und Freien Wählern, Entwicklungen bei den bayerischen Landesverbänden der Parteien (Umfragen, Personalien, innerparteiliche Debatten), größere Kontroversen und wovon in München (Landtag, Staatskanzlei) gerade die Rede ist. Klar abgrenzen von den anderen Bayern-Kacheln: keine Stadtratsbeschlüsse oder Kommunalpolitik Münchens (eigene Kachel 'München'), keine Tourismus- oder Wirtschaftszahlen (eigene Kachel 'Tourismus in Bayern') — hier geht es um Landespolitik. Bundespolitische Themen nur, soweit sie eine spezifisch bayerische Wendung haben (z. B. Bundesratsinitiative der Staatsregierung, CSU-Positionierung zur Bundes-CDU) — die allgemeine Bundespolitik steht in der eigenen Kachel, nicht doppeln. Keine reinen Umfrage-Wasserstandsmeldungen ohne Einordnung. Primärquellen, die bei jedem Lauf direkt geprüft werden: die Pressemitteilungen der Staatsregierung zum Ministerrat (bayern.de), bayern.landtag.de und BR24.",
     "dunkel_stufe": "mittel"
   },
   {
@@ -64,7 +64,7 @@
     "farbe": "#b6403d",
     "cadence_days": 3,
     "weekday_only": false,
-    "recherche_hinweis": "Aktuelles aus Braunschweig: Entscheidungen des Stadtrats und der Stadtverwaltung, größere Bau- und Verkehrsprojekte (Straßenbahnausbau, Ringgleis, Sperrungen), Wohnungsbau und Mieten, Entwicklung der Innenstadt, die Lage bei den großen Arbeitgebern und Forschungseinrichtungen (TU Braunschweig, Volkswagen/Salzgitter-Region, Luftfahrtforschung) samt konkreten Folgen für die Stadt, größere Veranstaltungen. Kein Boulevard, keine einzelnen Polizeimeldungen ohne größere Bedeutung, keine Sport-Ergebnisse — Eintracht Braunschweig nur bei stadtpolitischer Relevanz (Stadion, Finanzierung). Themen aus dem Stadtbezirk Wabe-Schunter-Beberbach nur, wenn sie gesamtstädtisch bedeutsam sind — für das Viertel selbst gibt es eine eigene Kachel, nicht doppeln.",
+    "recherche_hinweis": "Aktuelles aus Braunschweig: Entscheidungen des Stadtrats und der Stadtverwaltung, größere Bau- und Verkehrsprojekte (Straßenbahnausbau, Ringgleis, Sperrungen), Wohnungsbau und Mieten, Entwicklung der Innenstadt, die Lage bei den großen Arbeitgebern und Forschungseinrichtungen (TU Braunschweig, Volkswagen/Salzgitter-Region, Luftfahrtforschung) samt konkreten Folgen für die Stadt, größere Veranstaltungen. Kein Boulevard, keine einzelnen Polizeimeldungen ohne größere Bedeutung, keine Sport-Ergebnisse — Eintracht Braunschweig nur bei stadtpolitischer Relevanz (Stadion, Finanzierung). Themen aus dem Stadtbezirk Wabe-Schunter-Beberbach nur, wenn sie gesamtstädtisch bedeutsam sind — für das Viertel selbst gibt es eine eigene Kachel, nicht doppeln. Primärquellen, die bei jedem Lauf direkt geprüft werden: die Pressemitteilungen der Stadt (braunschweig.de), die Braunschweiger Zeitung und News38.",
     "dunkel_stufe": "tief"
   },
   {
@@ -77,7 +77,7 @@
     "farbe": "#0f9067",
     "cadence_days": 3,
     "weekday_only": false,
-    "recherche_hinweis": "Alles Wichtige aus dem Wabeviertel in Braunschweig. Zur Orientierung: 'Wabeviertel' ist ein umgangssprachlicher Name für das Wohnquartier in Braunschweig-Gliesmarode zwischen Prinzenpark und Schunterwiesen, benannt nach dem Bach Wabe (Straßen wie Wabestraße, An der Wabe, Zur Wabe). Verwaltungstechnisch gehört es zum Stadtbezirk 112 Wabe-Schunter-Beberbach (Gliesmarode, Querum, Riddagshausen, Bienrode, Waggum, Bevenrode). Wichtig: NICHT mit der gleichnamigen Wabestraße im Östlichen Ringgebiet (38106) verwechseln. Relevant sind: Beschlüsse und Themen des Bezirksrats, Bauprojekte und Quartiersentwicklung, Baustellen, Sperrungen und Verkehrsplanung vor Ort, Straßenbahn- und Buslinien in Richtung Gliesmarode, Nahversorgung, Schulen und Kitas, Grünflächen und Naherholung (Prinzenpark, Schunterwiesen, Riddagshausen mit Kloster und Naturschutzgebiet, Renaturierung der Wabe), Vereine und Veranstaltungen im Viertel. Gute Quellen sind die Braunschweiger Zeitung, braunschweig.de und Bezirksratsunterlagen. Das Viertel ist klein — dünne Nachrichtenlage ist völlig normal. Dann lieber unveraendert melden als Belangloses aufzublähen; nur bei wirklich leerer Lage auf das direkte Umfeld (Gliesmarode, Querum, Riddagshausen) ausweichen.",
+    "recherche_hinweis": "Alles Wichtige aus dem Wabeviertel in Braunschweig. Zur Orientierung: 'Wabeviertel' ist ein umgangssprachlicher Name für das Wohnquartier in Braunschweig-Gliesmarode zwischen Prinzenpark und Schunterwiesen, benannt nach dem Bach Wabe (Straßen wie Wabestraße, An der Wabe, Zur Wabe). Verwaltungstechnisch gehört es zum Stadtbezirk 112 Wabe-Schunter-Beberbach (Gliesmarode, Querum, Riddagshausen, Bienrode, Waggum, Bevenrode). Wichtig: NICHT mit der gleichnamigen Wabestraße im Östlichen Ringgebiet (38106) verwechseln. Relevant sind: Beschlüsse und Themen des Bezirksrats, Bauprojekte und Quartiersentwicklung, Baustellen, Sperrungen und Verkehrsplanung vor Ort, Straßenbahn- und Buslinien in Richtung Gliesmarode, Nahversorgung, Schulen und Kitas, Grünflächen und Naherholung (Prinzenpark, Schunterwiesen, Riddagshausen mit Kloster und Naturschutzgebiet, Renaturierung der Wabe), Vereine und Veranstaltungen im Viertel. Gute Quellen sind die Braunschweiger Zeitung, braunschweig.de und Bezirksratsunterlagen. Das Viertel ist klein — dünne Nachrichtenlage ist völlig normal. Dann lieber unveraendert melden als Belangloses aufzublähen; nur bei wirklich leerer Lage auf das direkte Umfeld (Gliesmarode, Querum, Riddagshausen) ausweichen. Primärquellen, die bei jedem Lauf direkt geprüft werden: die Pressemitteilungen der Stadt Braunschweig (braunschweig.de), die Tagesordnungen und Beschlüsse des Stadtbezirksrats 112 im Ratsinformationssystem sowie die Braunschweiger Zeitung.",
     "dunkel_stufe": "tief"
   },
   {
@@ -101,7 +101,7 @@
     "farbe": "#a4900e",
     "cadence_days": 5,
     "weekday_only": false,
-    "recherche_hinweis": "Was bei Trade Republic (dem Berliner Neobroker) selbst los ist, nicht die allgemeine Börsenlage: neue Funktionen und Produkte (z.B. Sparpläne, Kreditkarte, Zinsen aufs Cash, Krypto- oder Derivatehandel), Änderungen bei Gebühren und Konditionen, Ausfälle oder Störungen der App, Sicherheitsvorfälle oder Datenschutzthemen, regulatorische Verfahren und Einordnungen (BaFin, EU-Aufsicht), Finanzierungsrunden, Bewertung, Börsenpläne oder größere Personalien, Nutzerzahlen und Wachstum, Kritik oder Kontroversen (z.B. Umgang mit Kundenbeschwerden, Ausfallzeiten bei Marktvolatilität). Allgemeine Marktbewegungen oder einzelne Aktienkurse gehören in die Kachel 'Aktienmarkt', hier nur, wenn sie Trade Republic als Unternehmen unmittelbar betreffen (z.B. Ausfall der App an einem Handelstag mit hohem Volumen).",
+    "recherche_hinweis": "Was bei Trade Republic (dem Berliner Neobroker) selbst los ist, nicht die allgemeine Börsenlage: neue Funktionen und Produkte (z.B. Sparpläne, Kreditkarte, Zinsen aufs Cash, Krypto- oder Derivatehandel), Änderungen bei Gebühren und Konditionen, Ausfälle oder Störungen der App, Sicherheitsvorfälle oder Datenschutzthemen, regulatorische Verfahren und Einordnungen (BaFin, EU-Aufsicht), Finanzierungsrunden, Bewertung, Börsenpläne oder größere Personalien, Nutzerzahlen und Wachstum, Kritik oder Kontroversen (z.B. Umgang mit Kundenbeschwerden, Ausfallzeiten bei Marktvolatilität). Allgemeine Marktbewegungen oder einzelne Aktienkurse gehören in die Kachel 'Aktienmarkt', hier nur, wenn sie Trade Republic als Unternehmen unmittelbar betreffen (z.B. Ausfall der App an einem Handelstag mit hohem Volumen). Primärquellen, die bei jedem Lauf direkt geprüft werden: die Pressemitteilungen von Trade Republic, Finanz-Szene.de, Handelsblatt und die großen Finanzportale.",
     "dunkel_stufe": "tief"
   },
   {
@@ -113,8 +113,7 @@
     "farbe": "#993eee",
     "cadence_days": 3,
     "weekday_only": false,
-    "recherche_hinweis": "Wirklich relevante Entwicklungen bei großen KI-Modellen und -Anbietern (neue Modelle, wichtige Preis-/Policy-Änderungen, spürbare Trends) — keine Kleinigkeiten oder Marketing-Ankündigungen.",
-    "zusatzabsatz_hinweis": "Was Boris Cherny (Head of Claude Code bei Anthropic) gerade zu KI/Claude Code sagt — seine aktuellste prägnante Aussage aus seinem Threads-Profil (threads.com/@boris_cherny), aus seinem X-Account (X-Handle: bcherny, nicht boris_cherny) oder einem Interview. Direkter Fetch von x.com liefert nur HTTP 402 (kein Nitter-Ersatz verfügbar, Dienst seit 24.08.2026 abgeschaltet) — X-Inhalte nur indirekt über WebSearch (z.B. site:x.com/bcherny) erreichbar, dort tauchen einzelne Post-Texte im Titel/Snippet auf. Nicht recherchieren, ob es 'etwas Neues' seit dem letzten Mal gibt, sondern jedes Mal seinen aktuell interessantesten Standpunkt einfangen, auch wenn es derselbe Post wie letztes Mal ist.",
+    "recherche_hinweis": "Wirklich relevante Entwicklungen bei großen KI-Modellen und -Anbietern (neue Modelle, wichtige Preis-/Policy-Änderungen, spürbare Trends) — keine Kleinigkeiten oder Marketing-Ankündigungen. Nicht allgemein nach 'KI-News' suchen, sondern die großen Anbieter gezielt abklopfen: OpenAI, Anthropic, Google/Gemini, Meta, xAI, Mistral sowie die chinesischen Labore (DeepSeek, Qwen, Kimi). Modell-Tracker und Preislisten in den Suchergebnissen sind gute Hinweisgeber; ein dort gelistetes neues Modell auf der Herstellerseite oder in seriöser Berichterstattung bestätigen, statt es als 'unbestätigt' zu verwerfen. Wichtig ist auch, was sich unterhalb der Spitzenmodelle bewegt (günstige Modelle, Open-Weight-Veröffentlichungen), wenn es den Markt spürbar verschiebt.",
     "dunkel_stufe": "mittel"
   },
   {
@@ -150,7 +149,7 @@
     "farbe": "#d53372",
     "cadence_days": 3,
     "weekday_only": false,
-    "recherche_hinweis": "Wirklich relevante Neuigkeiten von Google/Alphabet: Änderungen an Suche, Android, Chrome und den wichtigen Diensten, neue Gemini-Modelle oder KI-Funktionen, Kartellverfahren und Regulierung mit konkreten Folgen. KI-Themen nur, soweit sie speziell Google betreffen — die allgemeine KI-Lage steht schon im KI-Block, nicht doppeln. Keine Gerüchte, keine reinen Marketing-Ankündigungen, keine Quartalszahlen-Details ohne Bedeutung für Nutzer.",
+    "recherche_hinweis": "Wirklich relevante Neuigkeiten von Google/Alphabet: Änderungen an Suche, Android, Chrome und den wichtigen Diensten, neue Gemini-Modelle oder KI-Funktionen, Kartellverfahren und Regulierung mit konkreten Folgen. KI-Themen nur, soweit sie speziell Google betreffen — die allgemeine KI-Lage steht schon im KI-Block, nicht doppeln. Keine Gerüchte, keine reinen Marketing-Ankündigungen, keine Quartalszahlen-Details ohne Bedeutung für Nutzer. Primärquellen, die bei jedem Lauf direkt geprüft werden: blog.google (offizieller Google-Blog) und die Berichterstattung großer Tech-Medien (The Verge, heise, Golem).",
     "dunkel_stufe": "mittel"
   },
   {
@@ -218,6 +217,19 @@
     "dunkel_stufe": "tief"
   },
   {
+    "id": "openai-chatgpt",
+    "titel": "Was gibt es Neues von ChatGPT und OpenAI?",
+    "kachel_titel": "ChatGPT & OpenAI",
+    "eyebrow": "KI-Anbieter",
+    "nav": "ChatGPT",
+    "icon": "💬",
+    "farbe": "#3b7d3b",
+    "cadence_days": 2,
+    "weekday_only": false,
+    "recherche_hinweis": "Alles Wichtige von OpenAI und ChatGPT: neue Modelle und Fähigkeiten, Neuerungen bei ChatGPT, Codex, der API und den anderen Produkten, Preis- und Plan-Änderungen, größere Ankündigungen, Partnerschaften, Finanzierung und Personalien, relevante Sicherheits- und Policy-Themen. Gute Quellen sind openai.com/news und die Berichterstattung darüber. Nur OpenAI-Spezifisches — die allgemeine KI-Lage steht schon in der KI-Kachel und Anthropic hat eine eigene Kachel, nicht doppeln. Keine Gerüchte und Spekulationen ohne belastbare Quelle. Primärquellen, die bei jedem Lauf direkt geprüft werden: zusätzlich die Release Notes von ChatGPT und der API.",
+    "dunkel_stufe": "tief"
+  },
+  {
     "id": "gaming-nintendo",
     "titel": "Gaming allgemein: Nintendo",
     "kachel_titel": "Nintendo allgemein",
@@ -227,7 +239,7 @@
     "farbe": "#c24800",
     "cadence_days": 7,
     "weekday_only": false,
-    "recherche_hinweis": "Allgemeine Neuigkeiten aus der Nintendo-Welt — OHNE einzelne Switch-2-Spiele-Releases, die stehen in einer eigenen Kachel und sollen hier nicht doppeln: Hardware-Lage und Verkaufszahlen der Switch 2, Firmware- und Online-Service-Änderungen, Preisänderungen, Nintendos Geschäftsstrategie, Filme und andere Ableger der Nintendo-Marken, wichtige Personalien und Studio-Nachrichten. Keine Gerüchte ohne belastbare Quelle, keine reinen Marketing-Ankündigungen.",
+    "recherche_hinweis": "Allgemeine Neuigkeiten aus der Nintendo-Welt — OHNE einzelne Switch-2-Spiele-Releases, die stehen in einer eigenen Kachel und sollen hier nicht doppeln: Hardware-Lage und Verkaufszahlen der Switch 2, Firmware- und Online-Service-Änderungen, Preisänderungen, Nintendos Geschäftsstrategie, Filme und andere Ableger der Nintendo-Marken, wichtige Personalien und Studio-Nachrichten. Keine Gerüchte ohne belastbare Quelle, keine reinen Marketing-Ankündigungen. Primärquellen, die bei jedem Lauf direkt geprüft werden: nintendo.com (News und Investor Relations), ntower.de und die großen Gaming-Medien.",
     "dunkel_stufe": "mittel"
   },
   {
@@ -288,7 +300,7 @@
     "farbe": "#009d68",
     "cadence_days": 7,
     "weekday_only": false,
-    "recherche_hinweis": "Lage am Immobilienmarkt in Ingolstadt und Umgebung: Entwicklung der Kauf- und Mietpreise mit konkreten Zahlen samt Zeitraum und Quelle (Gutachterausschuss, Portal-Auswertungen, Sparkassen- und Maklerberichte), größere Wohnbauprojekte und Neubaugebiete, Leerstand und Gewerbeimmobilien, Einfluss der Audi-Lage und der Bauzinsen auf den lokalen Markt. Bundesweite Immobilien-Meldungen nur, wenn sie sich konkret auf Ingolstadt auswirken. Der Markt bewegt sich langsam — bei dünner Lage lieber unveraendert melden als Belangloses aufzublähen.",
+    "recherche_hinweis": "Lage am Immobilienmarkt in Ingolstadt und Umgebung: Entwicklung der Kauf- und Mietpreise mit konkreten Zahlen samt Zeitraum und Quelle (Gutachterausschuss, Portal-Auswertungen, Sparkassen- und Maklerberichte), größere Wohnbauprojekte und Neubaugebiete, Leerstand und Gewerbeimmobilien, Einfluss der Audi-Lage und der Bauzinsen auf den lokalen Markt. Bundesweite Immobilien-Meldungen nur, wenn sie sich konkret auf Ingolstadt auswirken. Der Markt bewegt sich langsam — bei dünner Lage lieber unveraendert melden als Belangloses aufzublähen. Primärquellen, die bei jedem Lauf direkt geprüft werden: der Gutachterausschuss der Stadt Ingolstadt, der Donaukurier und Auswertungen der großen Immobilienportale.",
     "dunkel_stufe": "hell"
   },
   {
@@ -300,7 +312,7 @@
     "farbe": "#b21ba4",
     "cadence_days": 7,
     "weekday_only": false,
-    "recherche_hinweis": "Neuigkeiten zur Berliner Band SDP (Vincent Stein und Dag-Alexis Kopplin): neue Singles, Alben und Musikvideos mit Erscheinungsdatum, angekündigte Tourneen und einzelne Konzerttermine — Termine in Bayern und im Raum München besonders hervorheben, mit Ort und Datum. Dazu Festivalauftritte, größere Interviews, Auszeichnungen und Chartplatzierungen. Keine Fan-Spekulationen und keine Gerüchte ohne Bestätigung durch Band, Label oder Veranstalter. Bei dünner Nachrichtenlage lieber unveraendert melden.",
+    "recherche_hinweis": "Neuigkeiten zur Berliner Band SDP (Vincent Stein und Dag-Alexis Kopplin): neue Singles, Alben und Musikvideos mit Erscheinungsdatum, angekündigte Tourneen und einzelne Konzerttermine — Termine in Bayern und im Raum München besonders hervorheben, mit Ort und Datum. Dazu Festivalauftritte, größere Interviews, Auszeichnungen und Chartplatzierungen. Keine Fan-Spekulationen und keine Gerüchte ohne Bestätigung durch Band, Label oder Veranstalter. Bei dünner Nachrichtenlage lieber unveraendert melden. Primärquellen, die bei jedem Lauf direkt geprüft werden: die offizielle Bandseite sdp.de, das Label und die großen Ticketanbieter.",
     "dunkel_stufe": "mittel"
   },
   {
@@ -312,7 +324,39 @@
     "farbe": "#457a1e",
     "cadence_days": 7,
     "weekday_only": false,
-    "recherche_hinweis": "Ein möglichst vollständiges Bild der Lage des Tourismus in Bayern, nicht nur eine Einzelmeldung. Dazu gehören: aktuelle Übernachtungs- und Gästezahlen mit Zeitraum und Vergleich zum Vorjahr (Statistisches Landesamt, Bayern Tourismus Marketing, dwif, DEHOGA Bayern), Pressemitteilungen und Veröffentlichungen von Verbänden, Ministerien und Tourismusregionen, der Verlauf der laufenden Saison samt Wetter- und Preiseinflüssen, die Lage im Gastgewerbe (Personal, Kosten, Insolvenzen), politische und regulatorische Themen (Bettensteuer, Zweitwohnungssteuer, Mehrwertsteuer auf Speisen, Seilbahn- und Infrastrukturprojekte), größere Investitionen sowie Trends wie Nachhaltigkeit und Besucherlenkung an Hotspots (Neuschwanstein, Zugspitze, Königssee, Alpenregionen). Zahlen immer mit Zeitraum nennen. Reine Werbetexte einzelner Hotels oder Regionen weglassen.",
+    "recherche_hinweis": "Ein möglichst vollständiges Bild der Lage des Tourismus in Bayern, nicht nur eine Einzelmeldung. Dazu gehören: aktuelle Übernachtungs- und Gästezahlen mit Zeitraum und Vergleich zum Vorjahr (Statistisches Landesamt, Bayern Tourismus Marketing, dwif, DEHOGA Bayern), Pressemitteilungen und Veröffentlichungen von Verbänden, Ministerien und Tourismusregionen, der Verlauf der laufenden Saison samt Wetter- und Preiseinflüssen, die Lage im Gastgewerbe (Personal, Kosten, Insolvenzen), politische und regulatorische Themen (Bettensteuer, Zweitwohnungssteuer, Mehrwertsteuer auf Speisen, Seilbahn- und Infrastrukturprojekte), größere Investitionen sowie Trends wie Nachhaltigkeit und Besucherlenkung an Hotspots (Neuschwanstein, Zugspitze, Königssee, Alpenregionen). Zahlen immer mit Zeitraum nennen. Reine Werbetexte einzelner Hotels oder Regionen weglassen. Die amtlichen Monatszahlen veröffentlicht das Bayerische Landesamt für Statistik rund fünf bis sechs Wochen nach Monatsende als Pressemitteilung (statistik.bayern.de/presse/mitteilungen/<Jahr>/pmNNN/) — bei jedem Lauf gezielt prüfen, ob ein neuerer Monat erschienen ist als der im bisherigen Text, z. B. per Suche 'statistik.bayern.de Pressemitteilung Tourismus <Monat> <Jahr>'. Ein neuer Monatswert ist immer eine Änderung.",
     "dunkel_stufe": "tief"
+  },
+  {
+    "id": "boris-cherny",
+    "titel": "Was gibt es Neues von Boris Cherny?",
+    "kachel_titel": "Boris Cherny",
+    "eyebrow": "Head of Claude Code",
+    "nav": "Boris",
+    "icon": "🧑‍💻",
+    "farbe": "#4d5200",
+    "cadence_days": 2,
+    "weekday_only": false,
+    "recherche_hinweis": "Nachrichten über und von Boris Cherny, dem Erfinder und Leiter von Claude Code bei Anthropic. Quellen: sein Threads-Profil https://www.threads.com/@boris_cherny per WebFetch (Hauptquelle, dort postet er am meisten), sein X-Account (Handle bcherny, NICHT boris_cherny) — x.com liefert per WebFetch nur HTTP 402, X-Posts deshalb nur indirekt über WebSearch (z.B. site:x.com/bcherny), wo Post-Texte im Titel/Snippet auftauchen —, dazu WebSearch nach aktuellen Interviews, Podcasts, Konferenzvorträgen und Presseberichten über ihn. Was zählt: was er ankündigt, wie er Claude Code selbst einsetzt, Arbeitsweisen und Tipps, die er teilt, klare Standpunkte zur Zukunft der Softwareentwicklung, Personalien. Die Kachel soll seine zwei, drei interessantesten Aussagen oder Vorgänge der letzten Tage einordnen, nicht jeden Post nacherzählen; Zitate sinngemäß auf Deutsch. Reine Produktmeldungen von Anthropic ohne seinen persönlichen Blickwinkel stehen schon in der Kachel 'Claude & Anthropic' und gehören hier nicht hin. Gibt es seit dem letzten Stand nichts Neues von ihm, unverändert lassen.",
+    "dunkel_stufe": "mittel"
+  },
+  {
+    "id": "ki-briefing",
+    "titel": "KI-Briefing des Tages (Horizon / Koso AI News Daily)",
+    "kachel_titel": "KI-Briefing",
+    "eyebrow": "Täglich aus Horizon",
+    "nav": "KI-Briefing",
+    "icon": "🛰️",
+    "farbe": "#004d4a",
+    "cadence_days": 1,
+    "weekday_only": false,
+    "format": "liste",
+    "breit": true,
+    "quelle_url": "https://aashishpahwa.github.io/Horizon/",
+    "quelle_text": "ganzes Briefing",
+    "recherche_hinweis": "Feste Quelle statt freier Suche: das tägliche englischsprachige KI-Briefing 'Koso AI News Daily' (Horizon). Zuerst per WebFetch den Feed https://aashishpahwa.github.io/Horizon/feed-en.xml lesen und daraus die neueste Ausgabe samt Datum bestimmen, dann diese Ausgabe per WebFetch lesen (Adressmuster https://aashishpahwa.github.io/Horizon/JJJJ/MM/TT/summary-en.html). Keine WebSearch nötig — höchstens eine, falls eine Meldung ohne Einordnung unverständlich bliebe. Die Ausgabe enthält rund 15–20 bewertete Meldungen; daraus die 5–7 wichtigsten auswählen und auf Deutsch destillieren — sieben Zeilen sind die harte Obergrenze, auch an ergiebigen Tagen, denn die Kachel ist genau dafür da, NICHT alles lesen zu müssen; die Zahlen 'neun bis zehn Zeilen' aus dem allgemeinen Listenformat gelten hier nicht, für jemanden, der KI und Tech eng verfolgt, aber nicht alles lesen kann. Auswahlmaßstab ist praktische Tragweite: neue Modelle und Fähigkeiten, Sicherheits- und Agenten-Themen, Hardware- und Kostensprünge, Studien mit klarer Aussage über Arbeit und Gesellschaft, Werkzeuge, die man wirklich nutzen würde — nicht die Punktzahl der Quelle nachplappern. Reine Nischenthemen (einzelne arXiv-Architekturdetails, obskure Programmiersprachen) weglassen, außer sie stehen für einen größeren Trend. Jede Zeile ein vollständiger Satz: was passiert ist und warum es zählt, gern mit der entscheidenden Zahl. Ausnahmsweise trägt jede Zeile am Ende einen Link: ein Leerzeichen und dann in eckigen Klammern die Adresse des Originalartikels, wie sie in der Ausgabe bei der Meldung steht (die eigentliche Quelle, z. B. the-decoder.com, arxiv.org, ein Blog oder eine Herstellerseite — NICHT der Hacker-News- oder Telegram-Link und nicht die Horizon-Seite selbst), Beispiel: '* Satz mit Einordnung. [https://the-decoder.com/...]'. Die Adresse buchstabengetreu kopieren, nie selbst zusammensetzen; gibt es nur einen HN-Link, den Link weglassen. Behauptungen der Quelle, die dünn belegt wirken (die Hacker-News-Diskussion steht jeweils mit dabei), vorsichtig formulieren statt als Tatsache. Marker '* ' für alle normalen Meldungen; '~ ' nur für höchstens eine wirklich kuriose oder verspielte Meldung als Ausklang, sonst keine. Ist die neueste Ausgabe nicht von heute, sondern älter, die erste Zeile mit dem Ausgabedatum beginnen ('Ausgabe vom 24. Oktober: ...'). Gibt es seit dem bisherigen Stand gar keine neue Ausgabe (die Quelle setzt gelegentlich tagelang aus), STATUS unveraendert melden — das ist bei diesem Block ausdrücklich erlaubt.",
+    "dunkel_stufe": "mittel",
+    "effort": "low",
+    "links_aus": "https://aashishpahwa.github.io/Horizon/feed-en.xml"
   }
 ]

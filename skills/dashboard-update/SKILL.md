@@ -41,6 +41,43 @@ gibt keine TITEL-Zeile.
    zusätzlich 1 `WebFetch` auf eine besonders ergiebige Quelle. Keine
    Artikelvolltexte sammeln, nur destillieren.
 
+   **Spuren nachgehen, nicht wegwischen.** Die Zusammenfassung über den
+   Suchergebnissen ist oft übervorsichtig („kein bestätigter Release“, „Zahlen
+   für August vermutlich noch nicht veröffentlicht“), auch wenn darunter ein
+   konkreter Hinweis steht: ein Name, ein Datum, eine Zahl, eine Quelle mit
+   neuerem Stand als der bisherige Text. Ein solcher Hinweis wird **geprüft,
+   bevor `unveraendert` gemeldet wird** — mit einem `WebFetch` auf die
+   Primärquelle (Herstellerseite, Amt, Band/Veranstalter) oder einer gezielten
+   Nachsuche nach genau diesem Namen. Dafür sind bis zu 2 zusätzliche Aufrufe
+   erlaubt. Das Fazit der Suchzusammenfassung ist kein Beleg, die Quellen sind
+   es. Nennt die Rechercheanweisung eine Primärquelle oder einen
+   Veröffentlichungsrhythmus (etwa monatliche Amtszahlen), wird diese
+   ausdrücklich geprüft: Gibt es einen neueren Zeitraum als im bisherigen Text?
+   Ist der bisherige Stand schon mehrere Wochen alt, mit der Erwartung suchen,
+   dass sich etwas getan hat — gezielt nach dem, was seit dem Stand-Datum
+   hätte passieren müssen (nächste Monatszahl, angekündigter Termin, nächstes
+   Modell), statt allgemein nach „Neuigkeiten“.
+
+   **Langer Stillstand.** Steht im Prompt eine Zeile „Stillstand: …“, haben
+   schon mehrere Läufe hintereinander nichts gefunden — das ist eher ein
+   Zeichen für zu flache Suche als für eine ruhige Lage. Dann gilt ein größeres
+   Budget: bis zu 4 `WebSearch` und 2 `WebFetch`. Jede Kernaussage des
+   bisherigen Stands einzeln gegenprüfen (stimmt sie noch, gibt es einen
+   neueren Wert?), die in der Rechercheanweisung genannten Primärquellen direkt
+   abrufen und auch in einer anderen Sprache suchen (deutsch/englisch).
+   **Quellen wechseln:** Die bewährten Quellen aus dem Prompt haben zuletzt
+   nichts mehr geliefert, also mindestens zwei der Aufrufe bewusst auf
+   **andere** Quellen richten: andere Medien, Fachportale, Amts- und
+   Verbandsseiten, Lokalzeitungen, die offizielle Seite der Beteiligten. Was
+   dabei etwas liefert, gehört in die QUELLEN-Zeile — so lernt die Kachel. Erst
+   wenn auch das nichts ergibt, ist `unveraendert` richtig. Dann ist die Lage
+   wirklich ruhig.
+
+   **Bewährte Quellen.** Die Rechercheanweisung kann am Ende einen Satz
+   „Bewährte Quellen aus früheren Läufen: …“ enthalten. Das sind Quellen, die
+   früher tatsächlich Inhalte geliefert haben. Im normalen Lauf zuerst dort
+   nachsehen, im Stillstand gerade nicht nur dort (siehe oben).
+
    Steht ein Zusatzabsatz-Hinweis im Prompt: dafür **getrennt** recherchieren,
    nicht mit der Hauptrecherche vermischen.
    - Bei einer Person mit Threads-Profil (z. B. `threads.com/@<handle>`)
@@ -61,7 +98,11 @@ gibt keine TITEL-Zeile.
 2. **Mit altem Stand vergleichen.** Nur bei echter inhaltlicher Neuigkeit
    umschreiben — nicht bei bloßer Umformulierung oder Bestätigung des Status
    quo. Bei dünner oder widersprüchlicher Quellenlage lieber `unveraendert`
-   melden als spekulieren. Der Zusatzabsatz zählt dabei mit: hat sich nur die
+   melden als spekulieren — das gilt aber erst **nach** der Nachprüfung aus
+   Schritt 1: eine ungeprüfte Spur ist keine dünne Quellenlage, sondern eine
+   offene Frage. Und `unveraendert` heißt, dass der bisherige Text noch
+   stimmt — enthält er eine Aussage wie „seither keine neuen Modelle“ oder
+   „neueste Zahlen: Juli“, die die Recherche widerlegt, ist das `geaendert`. Der Zusatzabsatz zählt dabei mit: hat sich nur die
    zitierte Aussage der Person geändert, das Hauptthema aber nicht, ist das
    allein schon `geaendert`.
 
@@ -94,6 +135,7 @@ gibt keine TITEL-Zeile.
    STATUS: geaendert
    STAND: 2026-08-28
    TITEL: <nur bei „Kacheltitel: DYNAMISCH", sonst weglassen>
+   QUELLEN: <1–4 Domains, die heute wirklich Inhalt geliefert haben, z. B. statistik.bayern.de, br.de>
    KERNAUSSAGEN:
    - Kernaussage 1
    - Kernaussage 2
@@ -108,8 +150,16 @@ gibt keine TITEL-Zeile.
    ```
    STATUS: unveraendert
    STAND: <bisheriges Datum unverändert übernommen>
+   QUELLEN: <optional: Quellen, die den bisherigen Stand heute bestätigt haben>
    ENDE
    ```
+
+   Die `QUELLEN`-Zeile ist das Gedächtnis der Kachel für gute Quellen: nur
+   Domains (ohne `https://`), kommagetrennt, nur solche, aus denen heute
+   tatsächlich etwas in den Text eingeflossen ist oder die den Stand belegen.
+   Suchmaschinen und Aggregator-Startseiten gehören nicht dazu. Fällt einem
+   nichts Belastbares ein, die Zeile weglassen. Sie ist nie Pflicht und
+   erscheint nie auf der Seite.
 
 ## Listenformat
 
@@ -132,7 +182,17 @@ Regeln für die einzelne Zeile:
   Ereignis plus die entscheidende Zahl, Folge oder Einordnung. Keine
   Schlagzeilen-Fragmente („Neues zum Haushalt"), keine Doppelpunkt-Konstruktion
   („Bundestag: Haushalt beschlossen").
-- Keine Quellenangaben, keine Links, keine Uhrzeiten.
+- Keine Quellenangaben, keine Links, keine Uhrzeiten. **Ausnahme:** Verlangt
+  die Rechercheanweisung ausdrücklich einen Link je Zeile, endet jede Zeile
+  mit einem Leerzeichen und `[https://…]`: die Adresse des Originalartikels,
+  buchstabengetreu aus der Quelle kopiert, nie selbst zusammengesetzt oder
+  gekürzt. Ein nicht belegbarer Link wird mechanisch entfernt, also lieber
+  weglassen als raten.
+- **Feste Quelle geht vor:** Nennt die Rechercheanweisung eine bestimmte
+  Quelle, die die Liste schon liefert (z.B. ein tägliches Briefing, das nur
+  ausgewählt und eingedampft wird), dann gilt deren Vorgehen — die
+  Ressort-Suche unten entfällt ganz, und auch die Mischung ernst/leicht richtet
+  sich nach der Anweisung.
 - **Recherche in genau 6 `WebSearch`-Aufrufen, nicht mehr** — als feste
   Ressort-Liste abarbeiten, eine Suche pro Punkt, dann aufhören:
   1. Inland (Deutschland: Politik, Gesellschaft)
@@ -160,7 +220,9 @@ Regeln für die einzelne Zeile:
   nur wenn es eine echte Weiterentwicklung gibt, und dann mit dem neuen Stand.
 - **`STATUS: unveraendert` gibt es im Listenformat nicht.** Ein Tagesüberblick
   wird jeden Tag neu geschrieben, auch wenn sich einzelne Meldungen mit gestern
-  überschneiden — immer `geaendert` mit dem heutigen Datum.
+  überschneiden — immer `geaendert` mit dem heutigen Datum. Einzige Ausnahme:
+  Die Rechercheanweisung erlaubt `unveraendert` ausdrücklich (feste Quelle,
+  die an manchen Tagen keine neue Ausgabe hat).
 
 Ausgabe sonst identisch, `KERNAUSSAGEN` bleibt die Gedächtnisstütze (dort in
 Stichworten, welche Themen heute abgedeckt waren):
@@ -222,7 +284,7 @@ nach `STAND:`.
   von QUINTESSENZ, und steht zwischen `STAND` und `KERNAUSSAGEN`. Bei
   `STATUS: unveraendert` entfällt sie (es gibt dann auch keinen neuen Inhalt,
   der anders heißen könnte).
-- `~/.claude/skills/boris/gesehen.tsv` (das Gedächtnis des `boris`-Skills und
+- `~/claude/boris/gesehen.tsv` (das Gedächtnis des `boris`-Skills und
   der Wochenmail) hier **nie lesen oder schreiben**. Dieser Zusatzabsatz ist
   eine unabhängige Momentaufnahme, kein "was ist neu"-Digest — beide
   Mechanismen laufen bewusst getrennt, sonst "verbraucht" der eine Posts, die

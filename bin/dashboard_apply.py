@@ -20,18 +20,30 @@ nach einem festen Eintrag in blocks.json (Top-Story des Tages). Dann ist eine
 zusaetzliche TITEL-Zeile Pflicht, die als kachel_titel in den State wandert;
 dashboard_build.py zieht sie dem statischen Titel vor.
 
+Bloecke mit 'links_aus' in blocks.json duerfen je Listenzeile einen Link
+'[https://...]' am Ende tragen; er bleibt nur stehen, wenn er wortgleich in
+der dort genannten Quelle (Seite/Feed) vorkommt.
+
+Optional QUELLEN-Zeile (nach STAND): die Quellen, die in diesem Lauf
+tatsaechlich etwas geliefert haben. Sie wandern als bewaehrte_quellen in den
+State und gehen beim naechsten Lauf wieder mit in den Prompt.
+
 Gibt auf stdout genau ein Wort aus: 'geaendert' oder 'unveraendert'.
 Bei unparsbarer Ausgabe: Fehlermeldung auf stderr, Exit-Code 1, nichts
 geschrieben.
 """
 import datetime
+import html
 import json
 import pathlib
 import re
 import sys
+import urllib.request
 
 CLAUDE = pathlib.Path("/home/gra/claude")
 STATE_DIR = CLAUDE / "state" / "dashboard"
+BLOCKS = CLAUDE / "dashboard" / "blocks.json"
+MAX_QUELLEN = 6
 
 
 def fehler(msg):
@@ -53,8 +65,10 @@ def parse(ausgabe, block_id, formatart, titel_dynamisch):
     if not re.search(r"^ENDE\s*$", ausgabe, re.M):
         fehler(f"Block {block_id}: keine ENDE-Zeile in der Modell-Ausgabe")
 
+    quellen = quellen_lesen(ausgabe)
+
     if status == "unveraendert":
-        return {"status": status, "stand": stand}
+        return {"status": status, "stand": stand, "quellen": quellen}
 
     # Nur bei dynamischem Titel: die Kachel heisst nach ihrem heutigen Inhalt.
     # Fehlt die Zeile, faellt der ganze Lauf durch und die Kachel bleibt auf
@@ -85,8 +99,12 @@ def parse(ausgabe, block_id, formatart, titel_dynamisch):
     if formatart == "liste":
         # Eine Meldung je Zeile, Marker '*' (ernst) oder '~' (leicht). Leere
         # Zeilen sind hier bedeutungslos und werden einfach uebergangen.
+        # Gelegentlich schreibt das Modell alle Meldungen in EINE Zeile
+        # ("* A. * B. ~ C."), dann stand die ganze Liste als ein Punkt da
+        # (28.09.2026). Ein Marker nach Satzende beginnt deshalb eine neue Zeile.
+        roh = re.sub(r"(?<=[.!?\"“”»«)\]])[ \t]+(?=[*~][ \t])", "\n", quint_m.group(1))
         punkte = []
-        for zeile in quint_m.group(1).splitlines():
+        for zeile in roh.splitlines():
             zeile = zeile.strip()
             if not zeile:
                 continue
@@ -96,8 +114,17 @@ def parse(ausgabe, block_id, formatart, titel_dynamisch):
             punkte.append(f"{m.group(1)} {' '.join(m.group(2).split())}")
         if not punkte:
             fehler(f"Block {block_id}: Listenformat verlangt, aber keine Meldung gefunden")
+        # Links je Zeile nur bei Bloecken, deren Zeilen je genau einer Quelle
+        # entsprechen (blocks.json: links_aus = Seite/Feed mit allen erlaubten
+        # Adressen). Ueberall sonst wird ein angehaengter Link abgeschnitten.
+        links_aus = block_lesen(block_id).get("links_aus")
+        if links_aus:
+            punkte = links_pruefen(punkte, block_id, links_aus)
+        else:
+            punkte = [LINK_RE.sub("", p) for p in punkte]
         return {"status": status, "stand": stand, "kernaussagen": kernaussagen,
-                "format": "liste", "teile": punkte, "kachel_titel": kachel_titel}
+                "format": "liste", "teile": punkte, "kachel_titel": kachel_titel,
+                "quellen": quellen}
 
     # Absaetze sind durch eine komplett leere Zeile getrennt (z.B. Hauptabsatz +
     # Zusatzabsatz); innerhalb eines Absatzes wird alles zu einer Zeile.
@@ -110,7 +137,85 @@ def parse(ausgabe, block_id, formatart, titel_dynamisch):
         fehler(f"Block {block_id}: QUINTESSENZ-Abschnitt fehlt oder ist leer")
 
     return {"status": status, "stand": stand, "kernaussagen": kernaussagen,
-            "format": "text", "teile": absaetze, "kachel_titel": kachel_titel}
+            "format": "text", "teile": absaetze, "kachel_titel": kachel_titel,
+            "quellen": quellen}
+
+
+LINK_RE = re.compile(r"\s*\[(https?://[^\s\]]+)\]\s*$")
+
+
+def erlaubte_links(feed_url):
+    """Alle Adressen, die in der Quelle wirklich vorkommen - oder None.
+
+    Das Modell soll Links nur abschreiben, nicht bauen. Ein vertippter oder
+    ausgedachter Link fuehrte sonst ins Leere, ohne dass es jemand merkt.
+    """
+    try:
+        with urllib.request.urlopen(feed_url, timeout=30) as antwort:
+            text = antwort.read().decode("utf-8", "replace")
+    except Exception as e:
+        print(f"WARNUNG: Linkquelle {feed_url} nicht lesbar ({e}) - Links entfallen",
+              file=sys.stderr)
+        return None
+    # Im Atom-Feed steckt das HTML escaped, teils doppelt.
+    text = html.unescape(html.unescape(text))
+    return {u.rstrip("/") for u in re.findall(r"https?://[^\s\"'<>]+", text)}
+
+
+def links_pruefen(punkte, block_id, feed_url):
+    """Haengt an jeder Listenzeile hoechstens ein '[url]' - nur wenn belegt."""
+    erlaubt = erlaubte_links(feed_url)
+    ergebnis = []
+    for p in punkte:
+        m = LINK_RE.search(p)
+        if m:
+            text = p[:m.start()]
+            if erlaubt is not None and m.group(1).rstrip("/") in erlaubt:
+                p = f"{text} [{m.group(1)}]"
+            else:
+                if erlaubt is not None:
+                    print(f"WARNUNG: Block {block_id}: Link nicht in der Quelle, entfernt: "
+                          f"{m.group(1)[:80]}", file=sys.stderr)
+                p = text
+        ergebnis.append(p)
+    return ergebnis
+
+
+def block_lesen(block_id):
+    for b in json.loads(BLOCKS.read_text(encoding="utf-8")):
+        if b["id"] == block_id:
+            return b
+    return {}
+
+
+def quellen_lesen(ausgabe):
+    """Optionale QUELLEN-Zeile: welche Quellen in diesem Lauf etwas geliefert haben.
+
+    Anders als TITEL nie Pflicht - eine fehlende oder kaputte Zeile kostet
+    nur das Lernen, nicht den Lauf. Was nicht wie eine Adresse aussieht
+    (Leerzeichen, ueberlang), wird stillschweigend verworfen.
+    """
+    m = re.search(r"^QUELLEN:\s*(.*?)\s*$", ausgabe, re.M)
+    if not m:
+        return []
+    quellen = []
+    for q in re.split(r"[,;]\s*", m.group(1)):
+        q = re.sub(r"^https?://(www\.)?", "", q.strip()).rstrip("/")
+        if q and "." in q and " " not in q and len(q) <= 100 and q not in quellen:
+            quellen.append(q)
+    return quellen[:4]
+
+
+def quellen_merken(state, neue):
+    """Bewaehrte Quellen des Themas: neueste vorn, hoechstens MAX_QUELLEN.
+
+    Was in keinem neueren Lauf mehr etwas liefert, rutscht nach hinten und
+    faellt irgendwann heraus - so tauschen sich die Quellen von selbst aus.
+    """
+    if not neue:
+        return
+    alt = [q for q in state.get("bewaehrte_quellen", []) if q not in neue]
+    state["bewaehrte_quellen"] = (neue + alt)[:MAX_QUELLEN]
 
 
 def main():
@@ -130,6 +235,8 @@ def main():
 
     state = json.loads(state_pfad.read_text(encoding="utf-8"))
     heute = datetime.date.today().isoformat()
+
+    quellen_merken(state, ergebnis["quellen"])
 
     if ergebnis["status"] == "unveraendert":
         state["letzter_check"] = heute

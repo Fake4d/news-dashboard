@@ -167,6 +167,10 @@
   .news li + li::before{top:calc(.55rem + .6em);}
   .news li.leicht{color:var(--muted);}
   .news li.leicht::before{background:var(--c-leicht); border-radius:50%;}
+  /* Link zum Originalartikel (nur Bloecke mit links_aus): Beiwerk am
+     Zeilenende, der Satz bleibt die Hauptsache. */
+  .news a.mehr{color:var(--muted); text-decoration:none; font-weight:600; padding:0 .3rem; border-radius:4px; white-space:nowrap;}
+  .news a.mehr:hover{color:var(--accent); background:color-mix(in srgb, var(--accent) 10%, transparent);}
   @media (min-width:720px){
     .card.wide .news{column-count:2; column-gap:2.2rem;}
   }
@@ -184,13 +188,14 @@
   .cadence{color:var(--muted); white-space:nowrap;}
 
   /* Weg zur Einzelseite des Themas: eine Kachel weitergeben, ohne das ganze
-     Dashboard herzugeben. Zurueckhaltend, es ist kein Hauptweg. */
-  .teilen{
+     Dashboard herzugeben. Zurueckhaltend, es ist kein Hauptweg. Der Link zur
+     Originalquelle (quelle_url in blocks.json) sieht genauso aus. */
+  .teilen, .quelle{
     color:var(--muted); text-decoration:none; white-space:nowrap; font-weight:600;
     padding:.15rem .45rem; margin:-.15rem -.2rem -.15rem 0; border-radius:6px;
     transition:color .15s ease, background-color .15s ease;
   }
-  .teilen:hover{color:var(--accent); background:color-mix(in srgb, var(--accent) 10%, transparent);}
+  .teilen:hover, .quelle:hover{color:var(--accent); background:color-mix(in srgb, var(--accent) 10%, transparent);}
 
   footer{margin-top:2.6rem; padding-top:1.4rem; border-top:1px solid var(--border); color:var(--muted); font-size:.85rem;}
   footer a{color:var(--text); text-decoration:none; font-weight:600;}
@@ -220,7 +225,7 @@
     html{scroll-behavior:auto;}
     .live .dot{animation:none;}
     nav.jump a{transition:none;}
-    .teilen{transition:none;}
+    .teilen, .quelle{transition:none;}
     body.app .refresh{transition:none;}
     .refresh.laedt svg{animation:none;}
   }
